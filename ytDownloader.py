@@ -175,7 +175,7 @@ def question1():
 def main():
     print("Press ESC at anytime to exit...\n")
 
-    print("Would you like to use MP4 to MP3? \n0. (Y)\n1. (N)\n")
+    print("Would you like to use MP4 to Audio? \n0. (Y)\n1. (N)\n")
     
     question1()
 
