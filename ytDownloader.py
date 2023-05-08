@@ -46,13 +46,14 @@ def question():
 
     match MP4ToMP3Question:
         case 'y':
-            print("Select File to Convert:")
-            
+            print("Files in Directory:")
+
+
+            # get list of Files
             listOfFiles = []
 
             n = 0
-            
-            # get list of Files
+
             for file in os.listdir():
                 if file.endswith(".mp4"):
                     print(f"({n}) {file}")
@@ -60,7 +61,7 @@ def question():
                     n += 1
 
             # get name or position
-            name = str(input("\nFile Name (excluding File Extension): \n>>> "))
+            name = str(input("\nFile Name: \n>>> "))
 
             # try to convert to Integer
             try:
@@ -70,7 +71,11 @@ def question():
 
             except ValueError:
                 try:
-                    convertMP4ToMP3(name)
+                    if name.endswith('.mp4'):
+                        name = name.removesuffix('.mp4')
+                        convertMP4ToMP3(name)
+                    else:
+                        convertMP4ToMP3(name)
                     
                 except FileNotFoundError:
                     print(f"FileNotFoundError: file {name}.mp4 does not exist")
