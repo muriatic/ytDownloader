@@ -5,7 +5,7 @@ from moviepy.editor import *
 def download_video(video_url, name):
     nameMP4 = name + ".mp4"
 
-    youtube = YouTube(video_url, '''use_oauth=True, allow_oauth_cache=True''')
+    youtube = YouTube(video_url) # use_oauth=True, allow_oauth_cache=True
 
     print("Be patient. Downloading...")
 
