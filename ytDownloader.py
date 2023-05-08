@@ -14,6 +14,8 @@ def download_video(video_url, name):
 
     print("Video Downloaded Successfully")
 
+dir_path = os.getcwd() # os.path.dirname(os.path.realpath(__file__))
+
 def MP4ToMP3(name):
     nameMP4 = name + ".mp4"
     nameMP3 = name + ".mp3"
@@ -31,9 +33,6 @@ def MP4ToMP3(name):
     
     else:
         raise ValueError(f"File {nameMP4} Does Not Exist")
-    
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
 
 while True:
     MP4toMP3Question = str(input("Would you like to use MP4 to MP3? \n")).lower()
@@ -57,7 +56,6 @@ while True:
                 download_video(link, name)
                 nameMP4 = str(MP4ToMP3(name))
 
-                print(nameMP4)
                 if os.path.exists(nameMP4):
                     os.remove(nameMP4)
 
@@ -74,3 +72,6 @@ while True:
 
     else: 
         continue
+
+
+input("Press enter to close...")
