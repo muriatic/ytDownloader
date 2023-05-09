@@ -70,6 +70,11 @@ def mp3ORmp4(name, link=''):
                 download_video(link, name)
 
             convertMP4(name, 'wav')
+        
+        # case '3':
+        #     if link != '':
+        #         download_video(link, name)
+        #     fileFormat = input("Type in file extension (e\nWarning: Experimental)")
 
         case 'esc':
             quit()
@@ -96,7 +101,7 @@ def yes1():
             n += 1
 
     # get name or position
-    name = str(input("\nFile Name: \n>>> "))
+    name = input("\nFile Name: \n>>> ")
 
     # try to convert to Integer
     try:
@@ -119,11 +124,11 @@ def yes1():
 
 
 def no1():
-    link = str(input("Video URL: \n>>> "))
-    name = str(input("File Name: \n>>> "))
+    link = input("Video URL: \n>>> ")
+    name = input("File Name: \n>>> ")
 
     while True:    
-        audioQuestion = str(input("Audio Only: \n>>> ")).lower()
+        audioQuestion = input("Audio Only: \n>>> ").lower()
 
         if audioQuestion == "yes":
             
