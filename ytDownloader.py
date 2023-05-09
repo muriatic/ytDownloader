@@ -7,28 +7,28 @@ from urllib.parse import urlparse
 import requests 
 
 class InvalidLinkException(Exception):
-    "Raised when the YouTube url does not exist"
+    """Raised when the YouTube url does not exist"""
     pass
 
 
 class NonYoutubeLinkException(Exception):
-    "Raised when the url is not YouTube"
+    """Raised when the url is not YouTube"""
     pass
 
 
 def linkValidation(link):
     parsedUrl = urlparse(link)
     if parsedUrl.netloc != "www.youtube.com" and parsedUrl.netloc != "youtu.be":
-        raise NonYoutubeLinkException(f"NonYoutubeLinkException: link {link} is not a valid YouTube address")
+        raise NonYoutubeLinkException(f"link {link} is not a YouTube address")
 
     if requests.get(link) != 200:
-        raise InvalidLinkException
+        raise InvalidLinkException(f"link {link} is not a valid YouTube address")
     
 
 def download_video(video_url, name):
     nameMP4 = name + ".mp4"
 
-    youtube = YouTube(video_url) # use_oauth=True, allow_oauth_cache=True
+    youtube = YouTube(video_url)
 
     print("Be patient. Downloading...")
 
@@ -38,11 +38,7 @@ def download_video(video_url, name):
     print("Video Downloaded Successfully")
 
 
-dir_path = os.getcwd() # os.path.dirname(os.path.realpath(__file__))
-
-
 def convertMP4(name, type):
-
     nameMP4 = name + ".mp4"
     
     print(nameMP4)
@@ -52,6 +48,8 @@ def convertMP4(name, type):
             endName = name + ".mp3"
         case 'wav':
             endName = name + '.wav'
+
+    dir_path = os.getcwd()
 
     video_file_path = os.path.join(dir_path, nameMP4)
     audio_file_path = os.path.join(dir_path, endName)
@@ -66,8 +64,6 @@ def convertMP4(name, type):
     else:
         raise FileNotFoundError(f"FileNotFoundError: file {nameMP4} not found")
 
-# def conversion(name):
-#     print("What file would you ")
 
 def mp3ORmp4(name, link=''):
     key_event = keyboard.read_event(suppress=True)
