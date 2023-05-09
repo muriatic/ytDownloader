@@ -1,5 +1,4 @@
-# ytDownloader
+# ytDownloader v1.1.2
 YouTube Downloader and MP4 to Audio Converter
-
-## Version:
-v1.1.2
+## SHA-256 Checksum:
+3F6E65D8EE5A4AB2623CAB2ADB11411C8142E4845C32A271B2121A91B6904AD1

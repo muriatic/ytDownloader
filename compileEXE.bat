@@ -32,12 +32,35 @@ del requirements.txt
 
 for /f "delims=" %%a in ('powershell .\SHA256CheckSum.ps1') do Set "$Value=%%a"
 
+echo;Checksum Created
+
 cd ../
+
+
+REM remove last line and any spaces
+SetLocal DisableDelayedExpansion
+
+Set "SrcFile=readme.md"
+
+If Not Exist "%SrcFile%" Exit /B
+Copy /Y "%SrcFile%" "%SrcFile%.bak">Nul 2>&1||Exit /B
+
+(   Set "Line="
+    For /F "UseBackQ Delims=" %%A In ("%SrcFile%.bak") Do (
+        SetLocal EnableDelayedExpansion
+        If Defined Line Echo !Line!
+        EndLocal
+        Set "Line=%%A"))>"%SrcFile%"
+EndLocal
+
+REM add checksum to the end
 
 Set out="."
 (
-    Echo;# SHA-256 Checksum:
     Echo;%$Value%
-) > %out%\checksum.md
+) >> %out%\README.md
 
-echo;checksum.md created
+REM delete the backup since it is unnecessary
+del README.md.bak
+
+Exit /B
