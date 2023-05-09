@@ -22,3 +22,22 @@ pip install -r requirements.txt
 call ytDownloader\Scripts\activate.bat
 
 pyinstaller ytDownloader.py -F --icon=icon.ico --upx-dir upx
+
+call ytDownloader\Scripts\deactivate.bat
+
+Rem Cleanup
+del ytDownloader.py
+del icon.ico
+del requirements.txt
+
+for /f "delims=" %%a in ('powershell .\SHA256CheckSum.ps1') do Set "$Value=%%a"
+
+cd ../
+
+Set out="."
+(
+    Echo;# SHA-256 Checksum:
+    Echo;%$Value%
+) > %out%\checksum.md
+
+echo;checksum.md created
