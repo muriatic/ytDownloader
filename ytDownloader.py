@@ -231,10 +231,6 @@ def question1():
         case _:
             question1()
 
-def rerun():
-    key_event = keyboard.read_event(suppress=True)
-    
-    rerun = key_event.name
 
 def main():
     print("Press ESC at anytime to exit...\n")
