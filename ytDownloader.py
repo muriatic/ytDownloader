@@ -3,7 +3,27 @@ import os
 from moviepy.editor import *
 import keyboard
 from time import sleep
+from urllib.parse import urlparse
+import requests 
 
+class InvalidLinkException(Exception):
+    "Raised when the YouTube url does not exist"
+    pass
+
+
+class NonYoutubeLinkException(Exception):
+    "Raised when the url is not YouTube"
+    pass
+
+
+def linkValidation(link):
+    parsedUrl = urlparse(link)
+    if parsedUrl.netloc != "www.youtube.com" and parsedUrl.netloc != "youtu.be":
+        raise NonYoutubeLinkException(f"NonYoutubeLinkException: link {link} is not a valid YouTube address")
+
+    if requests.get(link) != 200:
+        raise InvalidLinkException
+    
 
 def download_video(video_url, name):
     nameMP4 = name + ".mp4"
@@ -112,6 +132,7 @@ def yes1():
 
         mp3ORmp4(file)
 
+    # if integer conversion fails with ValueError
     except ValueError:
         try:
             if name.endswith('.mp4'):
@@ -125,6 +146,9 @@ def yes1():
 
 def no1():
     link = input("Video URL: \n>>> ")
+
+    linkValidation(link)
+
     name = input("File Name: \n>>> ")
 
     while True:    
