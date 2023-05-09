@@ -26,6 +26,7 @@ class NoMP4FilesToConvertException(Exception):
     """Raised when there are no MP4 files in the current directory"""
     pass
 
+# error handling
 def show_exception_and_exit(exc_type, exc_value, tb):
     import traceback
     traceback.print_exception(exc_type, exc_value, tb)
@@ -198,6 +199,7 @@ def no1():
 
         else:
             continue
+
 
 def question1():
     key_event = keyboard.read_event(suppress=True)
