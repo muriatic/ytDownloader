@@ -1,9 +1,15 @@
+@echo off
+
 copy ytDownloader.py .venv
+
+echo ytDownloader.py copied
+
 copy icon.ico .venv
+
+echo icon.ico copied
 
 cd .venv
 
-@echo off
 Set out="."
 (
     Echo;pytube==15.0.0
@@ -14,9 +20,9 @@ Set out="."
 
 echo;requirements.txt created
 
-@echo on
 python -m venv ytDownloader
 
+@echo on
 pip install -r requirements.txt
 
 call ytDownloader\Scripts\activate.bat
