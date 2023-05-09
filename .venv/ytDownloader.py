@@ -6,8 +6,9 @@ from time import sleep
 from urllib.parse import urlparse
 import requests 
 
+
 class InvalidLinkException(Exception):
-    """Raised when the YouTube url does not exist"""
+    """Raised when YouTube returns a non-200 status code"""
     pass
 
 
@@ -16,14 +17,41 @@ class NonYoutubeLinkException(Exception):
     pass
 
 
+class VideoUnavailableException(Exception):
+    """Raised when the YouTube video is unavailable"""
+    pass
+
+
+class NoMP4FilesToConvertException(Exception):
+    """Raised when there are no MP4 files in the current directory"""
+    pass
+
+def show_exception_and_exit(exc_type, exc_value, tb):
+    import traceback
+    traceback.print_exception(exc_type, exc_value, tb)
+    input("Press ENTER to exit...")
+    sys.exit(-1)
+
+sys.excepthook = show_exception_and_exit
+
+
 def linkValidation(link):
     parsedUrl = urlparse(link)
+    
+    #check if it is a YouTube link
     if parsedUrl.netloc != "www.youtube.com" and parsedUrl.netloc != "youtu.be":
         raise NonYoutubeLinkException(f"link {link} is not a YouTube address")
 
-    if requests.get(link) != 200:
-        raise InvalidLinkException(f"link {link} is not a valid YouTube address")
-    
+    r = requests.get(link)
+
+    # check if the video is available
+    if "Video unavailable" in r.text:
+        raise VideoUnavailableException(f"the YouTube video at: {link} is unavailable; please check that your link is correct")
+
+    # check to see if YouTube returns a good status code (200)
+    if r.status_code != 200:
+        raise InvalidLinkException(f"link {link} returned Status Code {r.status_code}")
+
 
 def download_video(video_url, name):
     nameMP4 = name + ".mp4"
@@ -103,7 +131,6 @@ def mp3ORmp4(name, link=''):
 
 
 def yes1():
-    print("Files in Directory:")
 
     # get list of Files
     listOfFiles = []
@@ -112,9 +139,16 @@ def yes1():
 
     for file in os.listdir():
         if file.endswith(".mp4"):
-            print(f"({n}) {file}")
             listOfFiles.append(file)
-            n += 1
+
+    if len(listOfFiles) == 0:
+        dir_path = os.getcwd()
+        raise NoMP4FilesToConvertException(f"there are no MP4 files available to be converted in the directory [{dir_path}]")
+
+    print("Files in Directory:")
+    for file in listOfFiles:
+        print(f"({n}) {file}")
+        n += 1
 
     # get name or position
     name = input("\nFile Name: \n>>> ")

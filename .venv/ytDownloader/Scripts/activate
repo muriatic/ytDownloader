@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="c:\Users\comur\Documents\GitHub\ytDownloader\.venv\ytDownloader"
+VIRTUAL_ENV="C:\Users\comur\Documents\GitHub\ytDownloader\.venv\ytDownloader"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
