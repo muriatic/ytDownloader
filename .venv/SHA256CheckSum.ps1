@@ -1,0 +1,1 @@
+(Get-FileHash "dist\ytDownloader.exe" -Algorithm SHA256).hash
