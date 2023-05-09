@@ -10,13 +10,9 @@ echo icon.ico copied
 
 cd .venv
 
-Set out="."
-(
-    Echo;pytube==15.0.0
-    Echo;moviepy==1.0.3
-    Echo;keyboard==0.13.5
-    Echo;pyinstaller==5.10.1
-) > "%out%\requirements.txt"
+python parseRequirements.py %*
+
+start parseRequirements.exe
 
 echo;requirements.txt created
 
