@@ -1,4 +1,4 @@
-('c:\\Users\\comur\\Documents\\GitHub\\ytDownloader\\.venv\\build\\ytDownloader\\PYZ-00.pyz',
+('C:\\Users\\comur\\Documents\\GitHub\\ytDownloader\\.venv\\build\\ytDownloader\\PYZ-00.pyz',
  [('PIL',
    'c:\\Users\\comur\\Documents\\GitHub\\ytDownloader\\.venv\\ytDownloader\\Lib\\site-packages\\PIL\\__init__.py',
    'PYMODULE'),
