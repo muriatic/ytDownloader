@@ -44,13 +44,16 @@ def linkValidation(link):
     if netloc != "www.youtube.com" and netloc != "youtu.be" and netloc != "youtube.com":
         raise NonYoutubeLinkException(f"link {link} is not a YouTube address")
 
-    print(parsedUrl)
-
     r = requests.get(link)
 
-    # check if it is a clip or video 
-    # clips path start with /clip; videos path start with /watch or nothing if the netloc is youtu.be
-    if not(parsedUrl.path.startswith("/watch") or parsedUrl.path.startswith("/clip")) and netloc != "youtu.be":
+    # check if it is a clip 
+    # clips path start with /clip
+    if parsedUrl.path.startswith("/clip"):
+        raise VideoUnavailableException(f"sorry, {link} is a YouTube clip which is not currently supported")
+
+    # check if it is a traditional video
+    # videos path start with /watch or nothing if the netloc is youtu.be
+    if not parsedUrl.path.startswith("/watch") and netloc != "youtu.be":
         raise VideoUnavailableException(f"{link} is a non-video YouTube link")
     
     # check if the video is available
@@ -61,31 +64,6 @@ def linkValidation(link):
     elif r.status_code != 200:
         raise InvalidLinkException(f"link {link} returned Status Code {r.status_code}")
     
-    print(r.text)
-    
-
-"""
-short share:
-https://youtu.be/                       NiXD4xVJM5Y
-
-long share:
-https://www.youtube.com/watch?v=        NiXD4xVJM5Y         &ab_channel=JamieDupuis
-
-CLIPS
-
-https://youtube.com/clip/   Ugkx    c8KaNg8mSIP9WM3idtxMuBRjEpwvUyr8     0     -    15      (   15   )
-https://youtube.com/clip/   Ugkx    buL4bGfKiQNMZoP5Rr_a38_cUbi9_4tZ     15    -    30      (   15   )
-https://youtube.com/clip/   Ugkx    Wg134ml4MFitqmZOgeSbG88CBj7cRoCk     30    -    45      (   15   )
-https://youtube.com/clip/   Ugkx    D7rDzyX2pYJtK6AwDob13HRWKuyqUJZv     04.2  -    19.2    (   12.7 )
-""" 
-
-
-# linkValidation('https://www.youtube.com/watch?v=ZAEM2NZ9EIg&ab_channel=costdiamonds')
-# linkValidation('https://youtube.com/clip/Ugkx2f_tTWRE9rTFUYJgwvZHutTFDD9KTQn3')
-# linkValidation('https://youtu.be/BQS4kLal7-k')
-# linkValidation('https://www.youtube.com/channel/UCpJpFOOAcyumWjDTCzGpd9g')
-# quit()
-
 
 def download_video(video_url, name):
     nameMP4 = name + ".mp4"
