@@ -18,7 +18,7 @@ class NonYoutubeLinkException(Exception):
 
 
 class VideoUnavailableException(Exception):
-    """Raised when the YouTube video is unavailable"""
+    """Raised when the YouTube video is unavailable or it is a non-video link"""
     pass
 
 
@@ -39,19 +39,52 @@ sys.excepthook = show_exception_and_exit
 def linkValidation(link):
     parsedUrl = urlparse(link)
     
+    netloc = parsedUrl.netloc
     #check if it is a YouTube link
-    if parsedUrl.netloc != "www.youtube.com" and parsedUrl.netloc != "youtu.be":
+    if netloc != "www.youtube.com" and netloc != "youtu.be" and netloc != "youtube.com":
         raise NonYoutubeLinkException(f"link {link} is not a YouTube address")
+
+    print(parsedUrl)
 
     r = requests.get(link)
 
+    # check if it is a clip or video 
+    # clips path start with /clip; videos path start with /watch or nothing if the netloc is youtu.be
+    if not(parsedUrl.path.startswith("/watch") or parsedUrl.path.startswith("/clip")) and netloc != "youtu.be":
+        raise VideoUnavailableException(f"{link} is a non-video YouTube link")
+    
     # check if the video is available
-    if "Video unavailable" in r.text:
+    elif "Video unavailable" in r.text:
         raise VideoUnavailableException(f"the YouTube video at: {link} is unavailable; please check that your link is correct")
 
     # check to see if YouTube returns a good status code (200)
-    if r.status_code != 200:
+    elif r.status_code != 200:
         raise InvalidLinkException(f"link {link} returned Status Code {r.status_code}")
+    
+    print(r.text)
+    
+
+"""
+short share:
+https://youtu.be/                       NiXD4xVJM5Y
+
+long share:
+https://www.youtube.com/watch?v=        NiXD4xVJM5Y         &ab_channel=JamieDupuis
+
+CLIPS
+
+https://youtube.com/clip/   Ugkx    c8KaNg8mSIP9WM3idtxMuBRjEpwvUyr8     0     -    15      (   15   )
+https://youtube.com/clip/   Ugkx    buL4bGfKiQNMZoP5Rr_a38_cUbi9_4tZ     15    -    30      (   15   )
+https://youtube.com/clip/   Ugkx    Wg134ml4MFitqmZOgeSbG88CBj7cRoCk     30    -    45      (   15   )
+https://youtube.com/clip/   Ugkx    D7rDzyX2pYJtK6AwDob13HRWKuyqUJZv     04.2  -    19.2    (   12.7 )
+""" 
+
+
+# linkValidation('https://www.youtube.com/watch?v=ZAEM2NZ9EIg&ab_channel=costdiamonds')
+# linkValidation('https://youtube.com/clip/Ugkx2f_tTWRE9rTFUYJgwvZHutTFDD9KTQn3')
+# linkValidation('https://youtu.be/BQS4kLal7-k')
+# linkValidation('https://www.youtube.com/channel/UCpJpFOOAcyumWjDTCzGpd9g')
+# quit()
 
 
 def download_video(video_url, name):
@@ -183,7 +216,7 @@ def no1():
     name = input("File Name: \n>>> ")
 
     while True:    
-        audioQuestion = input("Audio Only: \n>>> ").lower()
+        audioQuestion = input("Audio Only ('Yes' or 'No'): \n>>> ").lower()
 
         if audioQuestion == "yes":
             
@@ -237,7 +270,7 @@ def question1():
 def main():
     print("Press ESC at anytime to exit...\n")
 
-    print("Would you like to use MP4 to Audio? \n0. (Y)\n1. (N)\n")
+    print("Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n")
     
     question1()
 

@@ -8,11 +8,35 @@ copy icon.ico .venv
 
 echo icon.ico copied
 
+copy dependencies.md .venv
+
+echo dependencies.md copied
+
 cd .venv
 
-python parseRequirements.py %*
+Rem create requirement.txt file
+setlocal
 
-start parseRequirements.exe
+:: Empty the contents of the file - just for testing this script
+type nul >"requirements.txt"
+
+:: Unset the flag if for some reason it's been set beforehand
+set dependencies=
+
+:: Tokenize the contents - everything after the first delimiter
+:: (in this case space) will be contained in the second token (%%j)
+for /f "tokens=1,*" %%i in (dependencies.md) do (
+    if "%%~i"=="##" (
+        if not defined dependencies (
+            set "dependencies=true"
+        ) else (
+            set "dependencies="
+        )
+    ) else if defined dependencies if "%%~i"=="-" (
+        >>"requirements.txt" echo(%%~j)
+    )
+)
+
 
 echo;requirements.txt created
 
@@ -29,8 +53,16 @@ call ytDownloader\Scripts\deactivate.bat
 
 Rem Cleanup
 del ytDownloader.py
+echo ytDownloader.py deleted
+
 del icon.ico
+echo icon.ico deleted
+
 del requirements.txt
+echo requirements.txt deleted
+
+del dependencies.md
+echo dependencies.md deleted
 
 for /f "delims=" %%a in ('powershell .\SHA256CheckSum.ps1') do Set "$Value=%%a"
 
