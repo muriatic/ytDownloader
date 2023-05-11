@@ -4,7 +4,7 @@ copy ytDownloader.py .venv
 
 echo ytDownloader.py copied
 
-copy icon.ico .venv
+copy images/icon.ico .venv
 
 echo icon.ico copied
 
