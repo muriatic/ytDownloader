@@ -44,6 +44,37 @@ def show_exception_and_exit(exc_type, exc_value, tb):
 sys.excepthook = show_exception_and_exit
 
 
+def linkValidation(link):
+    parsedUrl = urlparse(link)
+    
+    netloc = parsedUrl.netloc
+    #check if it is a YouTube link
+    if netloc != "www.youtube.com" and netloc != "youtu.be" and netloc != "youtube.com":
+        raise NonYoutubeLinkException(f"link {link} is not a YouTube address")
+
+    r = requests.get(link)
+
+    # check if it is a clip 
+    # clips path start with /clip
+    if parsedUrl.path.startswith("/clip"):
+        return True
+
+    # check if it is a traditional video
+    # videos path start with /watch or nothing if the netloc is youtu.be
+    if not parsedUrl.path.startswith("/watch") and netloc != "youtu.be":
+        raise VideoUnavailableException(f"{link} is a non-video YouTube link")
+    
+    # check if the video is available
+    elif "Video unavailable" in r.text:
+        raise VideoUnavailableException(f"the YouTube video at: {link} is unavailable; please check that your link is correct")
+
+    # check to see if YouTube returns a good status code (200)
+    elif r.status_code != 200:
+        raise InvalidLinkException(f"link {link} returned Status Code {r.status_code}")
+    
+    return False
+
+
 class clippedContent():
     """opens chromedriver and will get the videoId, startTimeMs, endTimeMs"""
     def __init__(self, video_url):
@@ -100,82 +131,54 @@ class clippedContent():
 
         video.close()
 
-
-def linkValidation(link):
-    parsedUrl = urlparse(link)
     
-    netloc = parsedUrl.netloc
-    #check if it is a YouTube link
-    if netloc != "www.youtube.com" and netloc != "youtu.be" and netloc != "youtube.com":
-        raise NonYoutubeLinkException(f"link {link} is not a YouTube address")
+class functions():
+    """Download the video, getting the original video link if necessary"""
+    def download_video(link, name, clip=False):
+        downloadLink = link
 
-    r = requests.get(link)
+        # get non Clip link
+        if clip:
+            downloadLink = "https://youtu.be/" + clippedContent(link).video_id
 
-    # check if it is a clip 
-    # clips path start with /clip
-    if parsedUrl.path.startswith("/clip"):
-        return True
+        nameMP4 = name + ".mp4"
 
-    # check if it is a traditional video
-    # videos path start with /watch or nothing if the netloc is youtu.be
-    if not parsedUrl.path.startswith("/watch") and netloc != "youtu.be":
-        raise VideoUnavailableException(f"{link} is a non-video YouTube link")
-    
-    # check if the video is available
-    elif "Video unavailable" in r.text:
-        raise VideoUnavailableException(f"the YouTube video at: {link} is unavailable; please check that your link is correct")
+        youtube = YouTube(downloadLink)
 
-    # check to see if YouTube returns a good status code (200)
-    elif r.status_code != 200:
-        raise InvalidLinkException(f"link {link} returned Status Code {r.status_code}")
-    
-    return False
-    
+        print("Be patient. Downloading...")
 
-def download_video(link, name, clip=False):
-    downloadLink = link
+        video = youtube.streams.get_highest_resolution()
+        video.download(filename=nameMP4)
 
-    # get non Clip link
-    if clip:
-        downloadLink = "https://youtu.be/" + clippedContent(link).video_id
+        print("Video Downloaded Successfully")
 
-    nameMP4 = name + ".mp4"
+    """Convert the MP4 to the desired file type"""
+    def convertMP4(name, type, clip=False):
+        nameMP4 = name + ".mp4"
 
-    youtube = YouTube(downloadLink)
+        suffix = '_trim' if clip else ''
 
-    print("Be patient. Downloading...")
+        match type:
+            case 'mp3':
+                endName = name + suffix + ".mp3"
+            case 'wav':
+                endName = name + suffix + '.wav'
 
-    video = youtube.streams.get_highest_resolution()
-    video.download(filename=nameMP4)
+        dir_path = os.getcwd()
 
-    print("Video Downloaded Successfully")
+        video_file_path = os.path.join(dir_path, nameMP4)
+        audio_file_path = os.path.join(dir_path, endName)
 
+        if os.path.exists(video_file_path):
 
-def convertMP4(name, type, clip=False):
-    nameMP4 = name + ".mp4"
+            FILETOCONVERT = AudioFileClip(video_file_path)
+            FILETOCONVERT.write_audiofile(audio_file_path)
 
-    suffix = '_trim' if clip else ''
+            FILETOCONVERT.close()
+        
+        else:
+            raise FileNotFoundError(f"FileNotFoundError: file {nameMP4} not found")
 
-    match type:
-        case 'mp3':
-            endName = name + suffix + ".mp3"
-        case 'wav':
-            endName = name + suffix + '.wav'
-
-    dir_path = os.getcwd()
-
-    video_file_path = os.path.join(dir_path, nameMP4)
-    audio_file_path = os.path.join(dir_path, endName)
-
-    if os.path.exists(video_file_path):
-
-        FILETOCONVERT = AudioFileClip(video_file_path)
-        FILETOCONVERT.write_audiofile(audio_file_path)
-
-        FILETOCONVERT.close()
-    
-    else:
-        raise FileNotFoundError(f"FileNotFoundError: file {nameMP4} not found")
 
 class questions():
     """File Format"""
@@ -189,21 +192,21 @@ class questions():
         # compare it to the tuple
         if formatQuestion in {'0', '.mp3', 'mp3'}:
             if link != '':
-                download_video(link, name, clip)
+                functions.download_video(link, name, clip)
 
             if clip:
                 clippedContent(link).trimContent(name)
 
-            convertMP4(name, 'mp3', clip)
+            functions.convertMP4(name, 'mp3', clip)
         
         elif formatQuestion in {'1', '.wav', 'wav'}:
             if link != '':
-                download_video(link, name, clip)
+                functions.download_video(link, name, clip)
 
             if clip:
                 clippedContent(link).trimContent(name)
 
-            convertMP4(name, 'wav', clip)
+            functions.convertMP4(name, 'wav', clip)
 
         else:
             self.mp3ORwav(name, link, clip)
@@ -279,7 +282,7 @@ class questions():
                 break
 
             elif audioQuestion == "no":
-                download_video(link, name, clip)
+                functions.download_video(link, name, clip)
 
                 # trim the clip
                 if clip:
