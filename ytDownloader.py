@@ -115,8 +115,6 @@ class clippedContent():
    
 
     def trimContent(self, name):
-        self.startTimeMs, self.endTimeMs
-
         nameMP4 = name + '.mp4'
 
         startTimeSec, endTimeSec = self.startTimeMs / 1000, self.endTimeMs / 1000
