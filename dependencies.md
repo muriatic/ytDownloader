@@ -4,7 +4,6 @@
 - moviepy==1.0.3
 - pyinstaller==5.10.1
 - selenium==4.9.1
-## UPX Version
+## Other Dependencies
 - UPX==4.0.2--win64
-## ChromeDriverVersion
 - ChromeDriver==112.0.5615.49
