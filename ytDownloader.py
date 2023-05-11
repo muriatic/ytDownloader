@@ -133,7 +133,7 @@ class clippedContent():
     
 class functions():
     """Download the video, getting the original video link if necessary"""
-    def download_video(link, name):
+    def downloadVideo(link, name):
         downloadLink = link
 
         nameMP4 = name + ".mp4"
@@ -194,11 +194,11 @@ class questions():
             if clip:
                 _clipsInstance = clippedContent(link)
                 link = _clipsInstance.originalVideoLink
-                functions.download_video(link, name)
+                functions.downloadVideo(link, name)
                 _clipsInstance.trimContent(name)
                 
             elif link != '':
-                functions.download_video(link, name)
+                functions.downloadVideo(link, name)
 
             functions.convertMP4(name, 'mp3', clip)
         
@@ -206,11 +206,11 @@ class questions():
             if clip:
                 _clipsInstance = clippedContent(link)
                 link = _clipsInstance.originalVideoLink
-                functions.download_video(link, name)
+                functions.downloadVideo(link, name)
                 _clipsInstance.trimContent(name)
                 
             elif link != '':
-                functions.download_video(link, name)
+                functions.downloadVideo(link, name)
 
             functions.convertMP4(name, 'wav', clip)
 
@@ -286,11 +286,11 @@ class questions():
                 if clip:
                     _clipsInstance = clippedContent(link)
                     link = _clipsInstance.originalVideoLink
-                    functions.download_video(link, name)
+                    functions.downloadVideo(link, name)
                     _clipsInstance.trimContent(name)
                     functions.cleanUp(name, clip, False)
                 else:
-                    functions.download_video(link, name)
+                    functions.downloadVideo(link, name)
 
                 break
 
