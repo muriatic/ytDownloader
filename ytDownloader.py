@@ -59,7 +59,7 @@ def linkValidation(link):
 
     # check if it is a traditional video
     # videos path start with /watch or nothing if the netloc is youtu.be
-    if not parsedUrl.path.startswith("/watch") and netloc != "youtu.be":
+    if not (parsedUrl.path.startswith("/watch") or parsedUrl.path.startswith("/shorts")) and netloc != "youtu.be":
         raise VideoUnavailableException(f"{link} is a non-video YouTube link")
     
     # check if the video is available
