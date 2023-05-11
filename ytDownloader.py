@@ -177,18 +177,17 @@ def convertMP4(name, type, clip=False):
     else:
         raise FileNotFoundError(f"FileNotFoundError: file {nameMP4} not found")
 
+class questions():
+    """File Format"""
+    def mp3ORwav(self, name, link='', clip=False):
+        formatQuestion = input("")
 
-def mp3ORwav(name, link='', clip=False):
-    key_event = keyboard.read_event(suppress=True)
+        nameMP4 = name + '.mp4'
 
-    formatQuestion = key_event.name
+        sleep(1)
 
-    nameMP4 = name + '.mp4'
-
-    sleep(1)
-
-    match formatQuestion:
-        case '0':
+        # compare it to the tuple
+        if formatQuestion in {'0', '.mp3', 'mp3'}:
             if link != '':
                 download_video(link, name, clip)
 
@@ -197,7 +196,7 @@ def mp3ORwav(name, link='', clip=False):
 
             convertMP4(name, 'mp3', clip)
         
-        case '1':
+        elif formatQuestion in {'1', '.wav', 'wav'}:
             if link != '':
                 download_video(link, name, clip)
 
@@ -206,155 +205,128 @@ def mp3ORwav(name, link='', clip=False):
 
             convertMP4(name, 'wav', clip)
 
-        case 'esc':
-            quit()
+        else:
+            self.mp3ORwav(name, link, clip)
 
-        case _:
-            mp3ORwav(name, link, clip)
-
-    try:
         if os.path.exists(nameMP4):
             os.remove(nameMP4)
         
         trimmedName = name + '_trim' + '.mp4'
-        if os.path.exists(trimmedName):
+        if clip and os.path.exists(trimmedName):
             os.remove(trimmedName)
 
-    except PermissionError.filename:
-        print("Unable to remove file(s)")
 
+    def yes1(self):
 
-def yes1():
+        # get list of Files
+        listOfFiles = []
 
-    # get list of Files
-    listOfFiles = []
+        n = 0
 
-    n = 0
+        for file in os.listdir():
+            if file.endswith(".mp4"):
+                listOfFiles.append(file)
 
-    for file in os.listdir():
-        if file.endswith(".mp4"):
-            listOfFiles.append(file)
+        if len(listOfFiles) == 0:
+            dir_path = os.getcwd()
+            raise NoMP4FilesToConvertException(f"there are no MP4 files available to be converted in the directory: [{dir_path}]")
 
-    if len(listOfFiles) == 0:
-        dir_path = os.getcwd()
-        raise NoMP4FilesToConvertException(f"there are no MP4 files available to be converted in the directory: [{dir_path}]")
+        print("Files in Directory:")
+        for file in listOfFiles:
+            print(f"({n}) {file}")
+            n += 1
 
-    print("Files in Directory:")
-    for file in listOfFiles:
-        print(f"({n}) {file}")
-        n += 1
+        # get name or position
+        name = input("\nFile Name: \n>>> ")
 
-    # get name or position
-    name = input("\nFile Name: \n>>> ")
-
-    # try to convert to Integer
-    try:
-        position = int(name)
-        file = listOfFiles[position].removesuffix('.mp4')
-
-        print("\nFile Format: \n(0) .mp3 \n(1) .wav\n")
-
-        mp3ORwav(file)
-
-    # if integer conversion fails with ValueError
-    except ValueError:
+        # try to convert to Integer
         try:
-            if name.endswith('.mp4'):
-                name = name.removesuffix('.mp4')
+            position = int(name)
+            file = listOfFiles[position].removesuffix('.mp4')
 
-            mp3ORwav(name)
-            
-        except FileNotFoundError:
-            print(f"FileNotFoundError: file {name}.mp4 does not exist")
+            print("\nFile Format: \n(0) .mp3 \n(1) .wav")
+
+            self.mp3ORwav(file)
+
+        # if integer conversion fails with ValueError
+        except ValueError:
+            try:
+                if name.endswith('.mp4'):
+                    name = name.removesuffix('.mp4')
+
+                self.mp3ORwav(name)
+                
+            except FileNotFoundError:
+                print(f"FileNotFoundError: file {name}.mp4 does not exist")
 
 
-def no1():
-    link = input("Video URL: \n>>> ")
+    def no1(self):
+        link = input("Video URL: \n>>> ")
 
-    clip = linkValidation(link)
+        clip = linkValidation(link)
 
-    name = input("File Name: \n>>> ")
+        name = input("File Name: \n>>> ")
 
-    while True:    
-        audioQuestion = input("Audio Only ('Yes' or 'No'): \n>>> ").lower()
+        while True:    
+            audioQuestion = input("Audio Only ('Yes' or 'No'): \n>>> ").lower()
 
-        if audioQuestion == "yes":
-            
-            print("File Format: \n(0) .mp3 \n(1) .wav\n")
+            if audioQuestion == "yes":
+                
+                print("File Format: \n(0) .mp3 \n(1) .wav")
 
-            mp3ORwav(name, link, clip)
+                self.mp3ORwav(name, link, clip)
 
-            break
+                break
 
-        elif audioQuestion == "no":
-            download_video(link, name, clip)
+            elif audioQuestion == "no":
+                download_video(link, name, clip)
 
-            # trim the clip
-            if clip:
-                clippedContent(link).trimContent(name)
+                # trim the clip
+                if clip:
+                    clippedContent(link).trimContent(name)
 
-            break
+                break
+
+            else:
+                continue
+
+
+    def question1(self):    
+        MP4ToMP3Question = input("")
+        
+        sleep(1)
+
+        if MP4ToMP3Question in {'y', 'Y', '0'}:
+            self.yes1()
+
+        elif MP4ToMP3Question in {'n', 'N', '1'}:
+            self.no1()
 
         else:
-            continue
+            self.question1
 
 
-def question1():
-    key_event = keyboard.read_event(suppress=True)
-    
-    MP4ToMP3Question = key_event.name
-    
-    sleep(1)
-
-    match MP4ToMP3Question:
-        case 'y':
-            yes1()
-
-        case 'Y':
-            yes1()
-
-        case '0':
-            yes1()
+    def __init__(self):
+        print("Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n")
         
-        case 'n':
-            no1()
+        self.question1()
 
-        case 'N':
-            no1()
+        print("Press ANY KEY to close or R to run again")
         
-        case '1':
-            no1()
+        key_event = keyboard.read_event(suppress=True)
         
-        case 'esc':
-            quit()
-
-        case _:
-            question1()
-
-
-def main():
-    print("Press ESC at anytime to exit...\n")
-
-    print("Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n")
-    
-    question1()
-
-    print("Press R to run again, or ESC to close")
-    
-    key_event = keyboard.read_event(suppress=True)
-    
-    rerun = key_event.name
-    
-    match rerun:
-        case 'R':
-            main()
-
-        case 'r':
-            main()
+        rerun = key_event.name
         
-        case _:
-            quit()
+        match rerun:
+            case 'R':
+                self.main()
+
+            case 'r':
+                self.main()
+            
+            case _:
+                quit()
         
 
 if __name__ == '__main__':
-    main()
+    questions()
