@@ -1,4 +1,4 @@
-# ytDownloader v1.1.2
+# ytDownloader v2.1.1
 YouTube Downloader and MP4 to Audio Converter
 ## Long Term Additions:
 - [ ] Add a GUI
