@@ -177,7 +177,7 @@ class functions():
     def cleanUp(name, clip=False, audioOnly=True):
         nameMP4 = name + '.mp4'
 
-        if os.path.exists(nameMP4):
+        if os.path.exists(nameMP4) and (audioOnly or clip):
             os.remove(nameMP4)
         
         trimmedName = name + '_trim' + '.mp4'
