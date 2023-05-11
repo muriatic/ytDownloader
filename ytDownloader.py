@@ -178,6 +178,16 @@ class functions():
         
         else:
             raise FileNotFoundError(f"FileNotFoundError: file {nameMP4} not found")
+        
+    def cleanUp(name, clip=False):
+        nameMP4 = name + '.mp4'
+
+        if os.path.exists(nameMP4):
+            os.remove(nameMP4)
+        
+        trimmedName = name + '_trim' + '.mp4'
+        if clip and os.path.exists(trimmedName):
+            os.remove(trimmedName)
 
 
 class questions():
@@ -211,14 +221,7 @@ class questions():
         else:
             self.mp3ORwav(name, link, clip)
 
-        if os.path.exists(nameMP4):
-            os.remove(nameMP4)
         
-        trimmedName = name + '_trim' + '.mp4'
-        if clip and os.path.exists(trimmedName):
-            os.remove(trimmedName)
-
-
     def yes1(self):
 
         # get list of Files
@@ -292,6 +295,8 @@ class questions():
 
             else:
                 continue
+        
+        functions.cleanUp(name, clip)
 
 
     def question1(self):    
