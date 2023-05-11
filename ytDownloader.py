@@ -1,7 +1,6 @@
 from pytube import YouTube
 import os
 from moviepy.editor import *
-import keyboard
 from time import sleep
 from urllib.parse import urlparse
 import requests 
@@ -316,12 +315,8 @@ class questions():
         print("Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n")
         
         self.question1()
-
-        print("Press ANY KEY to close or R to run again")
         
-        key_event = keyboard.read_event(suppress=True)
-        
-        rerun = key_event.name
+        rerun = input("Type R to run again or anything else to close")
         
         match rerun:
             case 'R':
