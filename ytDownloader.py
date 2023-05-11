@@ -1,7 +1,6 @@
 from pytube import YouTube
 import os
 from moviepy.editor import *
-from time import sleep
 from urllib.parse import urlparse
 import requests 
 
@@ -191,11 +190,6 @@ class questions():
     """File Format"""
     def mp3ORwav(self, name, link='', clip=False):
         formatQuestion = input("")
-
-        nameMP4 = name + '.mp4'
-
-        sleep(1)
-
         # compare it to the tuple
         if formatQuestion in {'0', '.mp3', 'mp3'}:
             if link != '':
@@ -298,8 +292,6 @@ class questions():
 
     def question1(self):    
         MP4ToMP3Question = input("")
-        
-        sleep(1)
 
         if MP4ToMP3Question in {'y', 'Y', '0'}:
             self.yes1()
@@ -326,7 +318,7 @@ class questions():
                 self.main()
             
             case _:
-                quit()
+                sys.exit(0)
         
 
 if __name__ == '__main__':
