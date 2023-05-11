@@ -110,6 +110,9 @@ class clippedContent():
         self.endTimeMs = int(endTimeMs.split('"')[0])
 
         driver.quit()
+
+        # get non Clip link AFTER the driver has been closed
+        self.originalVideoLink ="https://youtu.be/" + self.video_id
    
 
     def trimContent(self, name):
@@ -130,12 +133,8 @@ class clippedContent():
     
 class functions():
     """Download the video, getting the original video link if necessary"""
-    def download_video(link, name, clip=False):
+    def download_video(link, name):
         downloadLink = link
-
-        # get non Clip link
-        if clip:
-            downloadLink = "https://youtu.be/" + clippedContent(link).video_id
 
         nameMP4 = name + ".mp4"
 
@@ -175,14 +174,14 @@ class functions():
         else:
             raise FileNotFoundError(f"FileNotFoundError: file {nameMP4} not found")
         
-    def cleanUp(name, clip=False):
+    def cleanUp(name, clip=False, audioOnly=True):
         nameMP4 = name + '.mp4'
 
         if os.path.exists(nameMP4):
             os.remove(nameMP4)
         
         trimmedName = name + '_trim' + '.mp4'
-        if clip and os.path.exists(trimmedName):
+        if clip and audioOnly and os.path.exists(trimmedName):
             os.remove(trimmedName)
 
 
@@ -192,20 +191,26 @@ class questions():
         formatQuestion = input("")
         # compare it to the tuple
         if formatQuestion in {'0', '.mp3', 'mp3'}:
-            if link != '':
-                functions.download_video(link, name, clip)
-
             if clip:
-                clippedContent(link).trimContent(name)
+                _clipsInstance = clippedContent(link)
+                link = _clipsInstance.originalVideoLink
+                functions.download_video(link, name)
+                _clipsInstance.trimContent(name)
+                
+            elif link != '':
+                functions.download_video(link, name)
 
             functions.convertMP4(name, 'mp3', clip)
         
         elif formatQuestion in {'1', '.wav', 'wav'}:
-            if link != '':
-                functions.download_video(link, name, clip)
-
             if clip:
-                clippedContent(link).trimContent(name)
+                _clipsInstance = clippedContent(link)
+                link = _clipsInstance.originalVideoLink
+                functions.download_video(link, name)
+                _clipsInstance.trimContent(name)
+                
+            elif link != '':
+                functions.download_video(link, name)
 
             functions.convertMP4(name, 'wav', clip)
 
@@ -263,7 +268,7 @@ class questions():
         clip = linkValidation(link)
 
         name = input("File Name: \n>>> ")
-
+        
         while True:    
             audioQuestion = input("Audio Only ('Yes' or 'No'): \n>>> ").lower()
 
@@ -273,21 +278,25 @@ class questions():
 
                 self.mp3ORwav(name, link, clip)
 
+                functions.cleanUp(name, clip)
+
                 break
 
             elif audioQuestion == "no":
-                functions.download_video(link, name, clip)
-
-                # trim the clip
                 if clip:
-                    clippedContent(link).trimContent(name)
+                    _clipsInstance = clippedContent(link)
+                    link = _clipsInstance.originalVideoLink
+                    functions.download_video(link, name)
+                    _clipsInstance.trimContent(name)
+                    functions.cleanUp(name, clip, False)
+                else:
+                    functions.download_video(link, name)
 
                 break
 
             else:
                 continue
         
-        functions.cleanUp(name, clip)
 
 
     def question1(self):    
@@ -303,12 +312,12 @@ class questions():
             self.question1
 
 
-    def __init__(self):
+    def main(self):
         print("Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n")
         
         self.question1()
         
-        rerun = input("Type R to run again or anything else to close")
+        rerun = input("Type R to run again or anything else to close\n")
         
         match rerun:
             case 'R':
@@ -322,4 +331,4 @@ class questions():
         
 
 if __name__ == '__main__':
-    questions()
+    questions().main()
