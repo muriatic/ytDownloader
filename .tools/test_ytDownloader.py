@@ -1,7 +1,11 @@
 import unittest
-import ytDownloader as ytD
 import shutil
 import os
+import sys
+
+sys.path.append('../ytDownloader')
+
+import ytDownloader as ytD
 
 errorLinks_Responses = {
     # non YouTube Link ... raises NonYouTubeLinkException
@@ -71,7 +75,7 @@ class TestytDownloader(unittest.TestCase):
     def tearDownClass(cls):
         try:
             shutil.rmtree("__pycache__")
-            os.remove
+            # os.remove
         except OSError:
             pass
 
@@ -83,65 +87,65 @@ class TestytDownloader(unittest.TestCase):
         if os.path.exists(nameTrimMP4):
             os.remove(nameTrimMP4)
 
-    # def test_linkValidation(self):
-    #     # check that youtube links that aren't video links are stopped
-    #     # check that youtube links that aren't video links are stopped
-    #     # check if invalid youtube link that returns Video Unavailable is caught
-    #     # check if page returns status code not 200 (example returns error code: 404)
+    def test_linkValidation(self):
+        # check that youtube links that aren't video links are stopped
+        # check that youtube links that aren't video links are stopped
+        # check if invalid youtube link that returns Video Unavailable is caught
+        # check if page returns status code not 200 (example returns error code: 404)
         
-    #     n = 0
-    #     for n in range(len(errorLinks_Responses)):
-    #         # test for NonYoutubeLinkException converting the string to code with eval()
-    #         # gets the items from the dict, converts it to a list, then accesses the nth couple and then the 1st or 2nd value
+        n = 0
+        for n in range(len(errorLinks_Responses)):
+            # test for NonYoutubeLinkException converting the string to code with eval()
+            # gets the items from the dict, converts it to a list, then accesses the nth couple and then the 1st or 2nd value
             
-    #         link = (list(errorLinks_Responses.items())[n][0])
-    #         returnValue = eval(list(errorLinks_Responses.items())[n][1])
+            link = (list(errorLinks_Responses.items())[n][0])
+            returnValue = eval(list(errorLinks_Responses.items())[n][1])
 
-    #         # print("Testing Link:", link, '\n')
+            # print("Testing Link:", link, '\n')
 
-    #         with self.assertRaises(returnValue):
-    #             ytD.linkValidation(link)
-    #         print("\nInvalid Link Test", n, "PASSED!")
+            with self.assertRaises(returnValue):
+                ytD.linkValidation(link)
+            print("\nInvalid Link Test", n, "PASSED!")
 
 
-    #     # test clip link
-    #     # test standard YouTube video link 
-    #     # test standard YouTube video link less channel
-    #     # test short video link
-    #     # test YT Shorts video link
+        # test clip link
+        # test standard YouTube video link 
+        # test standard YouTube video link less channel
+        # test short video link
+        # test YT Shorts video link
 
-    #     n = 0 
-    #     for n in range(len(validLinks_Results)):
-    #         link = (list(validLinks_Results.items())[n][0])
-    #         returnValue = eval(list(validLinks_Results.items())[n][1])
+        n = 0 
+        for n in range(len(validLinks_Results)):
+            link = (list(validLinks_Results.items())[n][0])
+            returnValue = eval(list(validLinks_Results.items())[n][1])
 
-    #         # print("Testing Link:", link, '\n')
-    #         self.assertEqual(ytD.linkValidation(link), 
-    #                             returnValue
-    #                         )
-    #         print("\nValid Link Test", n, "PASSED!")
+            # print("Testing Link:", link, '\n')
+            self.assertEqual(ytD.linkValidation(link), 
+                                returnValue
+                            )
+            print("\nValid Link Test", n, "PASSED!")
 
     
-    # def test_downloadVideo(self):
-    #     # creates a space between the "." and the next line
-    #     print("\n")
-    #     nameMP4 = name + '.mp4'
+    def test_downloadVideo(self):
+        # creates a space between the "." and the next line
+        print("\n")
+        nameMP4 = name + '.mp4'
 
-    #     # get just the list of valid links that DONT return True since those are clips and WONT be handled properly here
-    #     validLinks = list(dict(filter(filterByFalse, validLinks_Results.items())).keys())
+        # get just the list of valid links that DONT return True since those are clips and WONT be handled properly here
+        validLinks = list(dict(filter(filterByFalse, validLinks_Results.items())).keys())
 
 
-    #     n = 0
-    #     for link in validLinks:
-    #         # print("Testing Link:", link, '\n')
+        n = 0
+        for link in validLinks:
+            # print("Testing Link:", link, '\n')
             
-    #         # downloads the video
-    #         ytD.functions.downloadVideo(link, name)
+            # downloads the video
+            ytD.functions.downloadVideo(link, name)
 
-    #         # checks if the file was generated
-    #         self.assertTrue(os.path.isfile(nameMP4))
-    #         print("Download Test", n, "PASSED!\n")
-    #         n += 1
+            # checks if the file was generated
+            self.assertTrue(os.path.isfile(nameMP4))
+            print("Download Test", n, "PASSED!\n")
+            n += 1
 
     # def test_convertMP4(self):
     #     # creates a space between the "." and the next line
@@ -262,23 +266,23 @@ class TestytDownloader(unittest.TestCase):
 
     # need error handles for this???
     # maybe compare the sample to another video to check they are the same????
-    def test_trimContent(self):
-        _clipInstance = ytD.clippedContent(testClip)
-        link = _clipInstance.originalVideoLink
+    # def test_trimContent(self):
+    #     _clipInstance = ytD.clippedContent(testClip)
+    #     link = _clipInstance.originalVideoLink
 
-        self.assertEqual("https://youtu.be/NiXD4xVJM5Y", link)
+    #     self.assertEqual("https://youtu.be/NiXD4xVJM5Y", link)
 
-        print("True Video Link Test PASSED!")
+    #     print("True Video Link Test PASSED!")
 
-        ytD.functions.downloadVideo(link, name)
+    #     ytD.functions.downloadVideo(link, name)
 
-        self.assertTrue(os.path.isfile(nameMP4))
+    #     self.assertTrue(os.path.isfile(nameMP4))
 
-        _clipInstance.trimContent(name)
+    #     _clipInstance.trimContent(name)
 
-        self.assertTrue(os.path.isfile(nameTrimMP4))
+    #     self.assertTrue(os.path.isfile(nameTrimMP4))
 
-        print("Trimmed Video Download Test PASSED!")
+    #     print("Trimmed Video Download Test PASSED!")
         
 
 if __name__ == '__main__':
