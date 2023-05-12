@@ -54,7 +54,7 @@ def filterByFalse(pair):
 
 def moveFile(fileName):
     # testAssets directory 
-    fileName_Path = 'testAssets/' + fileName
+    fileName_Path = '.tools/testAssets/' + fileName
 
     rawName = fileName.removesuffix('.mp4')
 
@@ -64,7 +64,7 @@ def moveFile(fileName):
         # if the file is not found in the testAssets folder, attempt to download it, 
         # and place it in the testAssets folder
         print(fileName, "not found in /testAssets. Attempting to download the video")
-        ytD.functions.downloadVideo(testVideo, rawName)
+        ytD.functions(rawName).downloadVideo(testVideo)
         shutil.copy(os.path.join(cwd, fileName), fileName_Path)
 
 
@@ -82,10 +82,15 @@ class TestytDownloader(unittest.TestCase):
         print("\nPASSED!!")
 
     def tearDown(self):
-        if os.path.exists(nameMP4):
-            os.remove(nameMP4)
-        if os.path.exists(nameTrimMP4):
-            os.remove(nameTrimMP4)
+        try:
+            if os.path.exists(nameMP4):
+                os.remove(nameMP4) 
+            if os.path.exists(nameTrimMP4):
+                os.remove(nameTrimMP4) 
+        except:
+            pass
+            
+        
 
     def test_linkValidation(self):
         # check that youtube links that aren't video links are stopped
@@ -140,150 +145,141 @@ class TestytDownloader(unittest.TestCase):
             # print("Testing Link:", link, '\n')
             
             # downloads the video
-            ytD.functions.downloadVideo(link, name)
+            ytD.functions(name).downloadVideo(link)
 
             # checks if the file was generated
             self.assertTrue(os.path.isfile(nameMP4))
             print("Download Test", n, "PASSED!\n")
             n += 1
 
-    # def test_convertMP4(self):
-    #     # creates a space between the "." and the next line
-    #     print("\n")
-    #     # since we need an MP4 we will move one from the testAssets folder
-    #     moveFile(nameMP4)
+    def test_convertMP4(self):
+        # creates a space between the "." and the next line
+        print("\n")
+        # since we need an MP4 we will move one from the testAssets folder
+        moveFile(nameMP4)
         
-    #     typesList = ['mp3', 'wav']
-    #     n = 0
-    #     for type in typesList:
-    #         # run as clip (means it needs to find 'name_trim.mp4')
-    #         ytD.functions.convertMP4(name, type, clip)
-    #       # we know the suffix will be '_trim'
-    #         suffix = '_trim'
-
-    #         match type:
-    #             case 'mp3':
-    #                 fileName = name + suffix + ".mp3"
-    #             case 'wav':
-    #                 fileName = name + suffix + '.wav'
-
-    #         # checks if the file was generated
-    #         self.assertTrue(os.path.isfile(fileName))
-    #         print("convertMP4 Test", n, "PASSED!\n")
-    #         n += 1
-
-    #         if os.path.exists(fileName):
-    #             os.remove(fileName)
-
-    #         # run as normal video; simply dont have to send in clip because default is False
-    #         ytD.functions.convertMP4(name, type)
+        typesList = ['.mp3', '.wav']
+        n = 0
+        for type in typesList:
+            # run as clip (means it needs to find 'name_trim.mp4')
+            ytD.functions(name).convertMP4(type, clip)
             
-    #       # we know the suffix with be ''
-    #         suffix = ''
+            # '_trim'
 
-    #         match type:
-    #             case 'mp3':
-    #                 fileName = name + suffix + ".mp3"
-    #             case 'wav':
-    #                 fileName = name + suffix + '.wav'
+            fileName = name + '_trim' + type
 
-    #         # checks if the file was generated
-    #         self.assertTrue(os.path.isfile(fileName))
-    #         print("convertMP4 Test", n, "PASSED!\n")
-    #         n += 1
+            # checks if the file was generated
+            self.assertTrue(os.path.isfile(fileName))
+            print("convertMP4 Test", n, "PASSED!\n")
+            n += 1
 
-    #         # delete MP3 and WAV
-    #         if os.path.exists(fileName):
-    #             os.remove(fileName)
+            if os.path.exists(fileName):
+                os.remove(fileName)
 
+            # run as normal video; simply dont have to send in clip because default is False
+            ytD.functions(name).convertMP4(type)
+            
+            # no suffix
+            
+            fileName = name + type
 
-    # def test_cleanUp(self):
-    #     n = 0
+            # checks if the file was generated
+            self.assertTrue(os.path.isfile(fileName))
+            print("convertMP4 Test", n, "PASSED!\n")
+            n += 1
 
-
-    #     # move both 
-    #     moveFile(nameMP4)
-    #     moveFile(nameTrimMP4)
-
-    #     """NON CLIP VIDEO AND CONVERTING TO AUDIO"""
-    #     ytD.functions.cleanUp(name, False, True)
-
-    #     # ensure original MP4 was removed
-    #     self.assertFalse(os.path.isfile(nameMP4))
-
-    #     # ensure it doesn't the clip which was outside of it's scope
-    #     self.assertTrue(os.path.isfile(nameTrimMP4))
-    #     print("cleanUp Test", n, "PASSED!\n")
-    #     n += 1
+            # delete MP3 and WAV
+            if os.path.exists(fileName):
+                os.remove(fileName)
 
 
-    #     # move both even if they were already there
-    #     moveFile(nameMP4)
-    #     moveFile(nameTrimMP4)
-
-    #     """NON CLIP VIDEO AND NOT CONVERTING TO AUDIO"""
-    #     ytD.functions.cleanUp(name, False, False)
-
-    #     # ensure original MP4 is untouched
-    #     self.assertTrue(os.path.isfile(nameMP4))
-
-    #     # ensure it doesn't the clip which was outside of it's scope
-    #     self.assertTrue(os.path.isfile(nameTrimMP4))
-    #     print("cleanUp Test", n, "PASSED!\n")
-    #     n += 1
+    def test_cleanUp(self):
+        n = 0
 
 
-    #     # move both even if they were already there
-    #     moveFile(nameMP4)
-    #     moveFile(nameTrimMP4)
+        # move both 
+        moveFile(nameMP4)
+        moveFile(nameTrimMP4)
 
-    #     """CLIP VIDEO AND CONVERTING TO AUDIO"""
-    #     ytD.functions.cleanUp(name, True, True)
+        """NON CLIP VIDEO AND CONVERTING TO AUDIO"""
+        ytD.functions(name).cleanUp(False, True)
+
+        # ensure original MP4 was removed
+        self.assertFalse(os.path.isfile(nameMP4))
+
+        # ensure it doesn't the clip which was outside of it's scope
+        self.assertTrue(os.path.isfile(nameTrimMP4))
+        print("cleanUp Test", n, "PASSED!\n")
+        n += 1
+
+
+        # move both even if they were already there
+        moveFile(nameMP4)
+        moveFile(nameTrimMP4)
+
+        """NON CLIP VIDEO AND NOT CONVERTING TO AUDIO"""
+        ytD.functions(name).cleanUp(False, False)
+
+        # ensure original MP4 is untouched
+        self.assertTrue(os.path.isfile(nameMP4))
+
+        # ensure it doesn't the clip which was outside of it's scope
+        self.assertTrue(os.path.isfile(nameTrimMP4))
+        print("cleanUp Test", n, "PASSED!\n")
+        n += 1
+
+
+        # move both even if they were already there
+        moveFile(nameMP4)
+        moveFile(nameTrimMP4)
+
+        """CLIP VIDEO AND CONVERTING TO AUDIO"""
+        ytD.functions(name).cleanUp(True, True)
         
-    #     # ensure original MP4 was deleted
-    #     self.assertFalse(os.path.isfile(nameMP4))
+        # ensure original MP4 was deleted
+        self.assertFalse(os.path.isfile(nameMP4))
 
-    #     # ensure clip was deleted
-    #     self.assertFalse(os.path.isfile(nameTrimMP4))
-    #     print("cleanUp Test", n, "PASSED!\n")
-    #     n += 1
+        # ensure clip was deleted
+        self.assertFalse(os.path.isfile(nameTrimMP4))
+        print("cleanUp Test", n, "PASSED!\n")
+        n += 1
 
 
-    #     # move both even if they were already there
-    #     moveFile(nameMP4)
-    #     moveFile(nameTrimMP4)
+        # move both even if they were already there
+        moveFile(nameMP4)
+        moveFile(nameTrimMP4)
 
-    #     """CLIP VIDEO AND NOT CONVERTING TO AUDIO"""
-    #     ytD.functions.cleanUp(name, True, False)
+        """CLIP VIDEO AND NOT CONVERTING TO AUDIO"""
+        ytD.functions(name).cleanUp(True, False)
 
-    #     # ensure original MP4 was deleted
-    #     self.assertFalse(os.path.isfile(nameMP4))
+        # ensure original MP4 was deleted
+        self.assertFalse(os.path.isfile(nameMP4))
 
-    #     # ensure clip was not deleted
-    #     self.assertTrue(os.path.isfile(nameTrimMP4))
-    #     print("cleanUp Test", n, "PASSED!\n")
-    #     n += 1
+        # ensure clip was not deleted
+        self.assertTrue(os.path.isfile(nameTrimMP4))
+        print("cleanUp Test", n, "PASSED!\n")
+        n += 1
 
     # need error handles for this???
     # maybe compare the sample to another video to check they are the same????
-    # def test_trimContent(self):
-    #     _clipInstance = ytD.clippedContent(testClip)
-    #     link = _clipInstance.originalVideoLink
+    def test_trimContent(self):
+        _clipInstance = ytD.clippedContent(testClip)
+        link = _clipInstance.originalVideoLink
 
-    #     self.assertEqual("https://youtu.be/NiXD4xVJM5Y", link)
+        self.assertEqual("https://youtu.be/NiXD4xVJM5Y", link)
 
-    #     print("True Video Link Test PASSED!")
+        print("True Video Link Test PASSED!")
 
-    #     ytD.functions.downloadVideo(link, name)
+        ytD.functions(name).downloadVideo(link)
 
-    #     self.assertTrue(os.path.isfile(nameMP4))
+        self.assertTrue(os.path.isfile(nameMP4))
 
-    #     _clipInstance.trimContent(name)
+        _clipInstance.trimContent(name)
 
-    #     self.assertTrue(os.path.isfile(nameTrimMP4))
+        self.assertTrue(os.path.isfile(nameTrimMP4))
 
-    #     print("Trimmed Video Download Test PASSED!")
+        print("Trimmed Video Download Test PASSED!")
         
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(failfast=True)
