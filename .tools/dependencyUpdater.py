@@ -1,6 +1,8 @@
 import importlib_metadata
 import sys
 
+"""Download your browser's version of ChromeDriver from https://chromedriver.chromium.org/downloads"""
+
 sys.path.append('../ytDownloader')
 
 dists = importlib_metadata.distributions()
@@ -14,7 +16,7 @@ for dist in dists:
 
 nameVersion = dict(zip(name, version))
 
-fileName = 'ytDownloader.py'
+fileName = 'yt_downloader.py'
 
 lines = []
 
@@ -47,7 +49,7 @@ fromLines[:] = list(set(fromLines))
 packages = fromLines+importLines
 
 
-# unnecessary to include in ytDownloader.py but necessary for dependencies.md
+# unnecessary to include in yt_downloader.py but necessary for dependencies.md
 packages.append('pyinstaller')
 
 # remove spaces

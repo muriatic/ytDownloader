@@ -1,8 +1,8 @@
 @echo off
 
-copy ytDownloader.py .venv
+copy yt_downloader.py .venv
 
-echo ytDownloader.py copied
+echo yt_downloader.py copied
 
 copy images\icon.ico .venv
 
@@ -52,8 +52,8 @@ pyinstaller ytDownloader.py -F --icon=icon.ico --upx-dir upx
 call ytDownloader\Scripts\deactivate.bat
 
 Rem Cleanup
-del ytDownloader.py
-echo ytDownloader.py deleted
+del yt_downloader.py
+echo yt_downloader.py deleted
 
 del icon.ico
 echo icon.ico deleted

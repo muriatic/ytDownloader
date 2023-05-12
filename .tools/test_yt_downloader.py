@@ -5,7 +5,7 @@ import sys
 
 sys.path.append('../ytDownloader')
 
-import ytDownloader as ytD
+import yt_downloader as ytD
 
 errorLinks_Responses = {
     # non YouTube Link ... raises NonYouTubeLinkException
@@ -69,7 +69,7 @@ def moveFile(fileName):
 
 
 ## tests do not necessarily run in order so they should be standalone
-class TestytDownloader(unittest.TestCase):
+class Testyt_downloader(unittest.TestCase):
     # runs at the very end
     @classmethod
     def tearDownClass(cls):
@@ -92,7 +92,7 @@ class TestytDownloader(unittest.TestCase):
             
         
 
-    def test_linkValidation(self):
+    def test_link_validation(self):
         # check that youtube links that aren't video links are stopped
         # check that youtube links that aren't video links are stopped
         # check if invalid youtube link that returns Video Unavailable is caught
@@ -109,7 +109,7 @@ class TestytDownloader(unittest.TestCase):
             # print("Testing Link:", link, '\n')
 
             with self.assertRaises(returnValue):
-                ytD.linkValidation(link)
+                ytD.link_validation(link)
             print("\nInvalid Link Test", n, "PASSED!")
 
 
@@ -125,7 +125,7 @@ class TestytDownloader(unittest.TestCase):
             returnValue = eval(list(validLinks_Results.items())[n][1])
 
             # print("Testing Link:", link, '\n')
-            self.assertEqual(ytD.linkValidation(link), 
+            self.assertEqual(ytD.link_validation(link), 
                                 returnValue
                             )
             print("\nValid Link Test", n, "PASSED!")
@@ -262,9 +262,9 @@ class TestytDownloader(unittest.TestCase):
 
     # need error handles for this???
     # maybe compare the sample to another video to check they are the same????
-    def test_trimContent(self):
-        _clipInstance = ytD.clippedContent(testClip)
-        link = _clipInstance.originalVideoLink
+    def test_trim_content(self):
+        _clipInstance = ytD.ClippedContent(testClip)
+        link = _clipInstance.original_video_link
 
         self.assertEqual("https://youtu.be/NiXD4xVJM5Y", link)
 
@@ -274,12 +274,12 @@ class TestytDownloader(unittest.TestCase):
 
         self.assertTrue(os.path.isfile(nameMP4))
 
-        _clipInstance.trimContent(name)
+        _clipInstance.trim_content(name)
 
         self.assertTrue(os.path.isfile(nameTrimMP4))
 
         print("Trimmed Video Download Test PASSED!")
-        
+
 
 if __name__ == '__main__':
     unittest.main(failfast=True)
