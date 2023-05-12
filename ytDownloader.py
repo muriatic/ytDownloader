@@ -43,7 +43,7 @@ def show_exception_and_exit(exc_type, exc_value, tb):
 sys.excepthook = show_exception_and_exit
 
 
-def linkValidation(link):
+def linkValidation(link) -> bool:
     parsedUrl = urlparse(link)
     
     netloc = parsedUrl.netloc
@@ -116,7 +116,7 @@ class clippedContent():
         self.originalVideoLink ="https://youtu.be/" + self.video_id
    
 
-    def trimContent(self, name):
+    def trimContent(self, name) -> None:
         nameMP4 = name + '.mp4'
 
         startTimeSec, endTimeSec = self.startTimeMs / 1000, self.endTimeMs / 1000
@@ -133,36 +133,35 @@ class clippedContent():
 
     
 class functions():
-    """Download the video, getting the original video link if necessary"""
-    def downloadVideo(link, name):
-        downloadLink = link
+    # class videos():
+    def __init__(self, name):
+        self.nameMP4 = name + '.mp4'
+        self.name = name
 
-        nameMP4 = name + ".mp4"
+
+    """Download the video"""
+    def downloadVideo(self, link) -> None:
+        downloadLink = link
 
         youtube = YouTube(downloadLink)
 
         print("Be patient. Downloading...")
 
         video = youtube.streams.get_highest_resolution()
-        video.download(filename=nameMP4)
+        video.download(filename=self.nameMP4)
 
         print("Video Downloaded Successfully")
 
-    """Convert the MP4 to the desired file type"""
-    def convertMP4(name, type, clip=False):
-        nameMP4 = name + ".mp4"
 
+    """Convert the MP4 to the desired file type"""
+    def convertMP4(self, type, clip=False) -> None:
         suffix = '_trim' if clip else ''
 
-        match type:
-            case 'mp3':
-                endName = name + suffix + ".mp3"
-            case 'wav':
-                endName = name + suffix + '.wav'
+        endName = self.name + suffix + type
 
         dir_path = os.getcwd()
 
-        video_file_path = os.path.join(dir_path, nameMP4)
+        video_file_path = os.path.join(dir_path, self.nameMP4)
         audio_file_path = os.path.join(dir_path, endName)
 
         if os.path.exists(video_file_path):
@@ -173,58 +172,80 @@ class functions():
             FILETOCONVERT.close()
         
         else:
-            raise FileNotFoundError(f"FileNotFoundError: file {nameMP4} not found")
-        
-    def cleanUp(name, clip=False, audioOnly=True):
-        nameMP4 = name + '.mp4'
+            raise FileNotFoundError(f"FileNotFoundError: file {self.nameMP4} not found")
 
-        if os.path.exists(nameMP4) and (audioOnly or clip):
-            os.remove(nameMP4)
         
-        trimmedName = name + '_trim' + '.mp4'
+    def cleanUp(self, clip=False, audioOnly=True) -> None:
+        if os.path.exists(self.nameMP4) and (audioOnly or clip):
+            os.remove(self.nameMP4)
+        
+        trimmedName = self.name + '_trim' + '.mp4'
         if clip and audioOnly and os.path.exists(trimmedName):
             os.remove(trimmedName)
 
 
-class questions():
-    """File Format"""
-    def mp3ORwav(self, name, link='', clip=False):
-        formatQuestion = input("")
-        # compare it to the tuple
-        if formatQuestion in {'0', '.mp3', 'mp3'}:
-            if clip:
-                _clipsInstance = clippedContent(link)
-                link = _clipsInstance.originalVideoLink
-                functions.downloadVideo(link, name)
-                _clipsInstance.trimContent(name)
-                
-            elif link != '':
-                functions.downloadVideo(link, name)
+class menuNav():
+    def __init__(self):
+        self.questionDictionary = {}
+        self.questionDictionary["Codes"] = ['Q1', 'Q2Y', 'Q2N1', 'Q2N2', 'Q2N3', 'Q3']
+        self.questionDictionary["Question"] = ["Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n", "File Name: \n>>> ", "Video URL: \n>>> ", "File Name: \n>>> ", "Audio Only ('Yes' or 'No'): \n", "File Format: \n(0) .mp3 \n(1) .wav"]
+        self.questionDictionary["Accepted Answers"] = [[['y', 'yes', '0'], ['n', 'no', '1']], False, False, False, [['yes', 'y', '1'], ['no', 'n', '0']], [['0', '.mp3', 'mp3'], ['1', '.wav', 'wav']]]
 
-            functions.convertMP4(name, 'mp3', clip)
+    """POSING QUESTIONS"""
+    def questionPoser(self, questionCode: str) -> any:
+        position = self.questionDictionary["Codes"].index(questionCode)
+        question = self.questionDictionary["Question"][position]
         
-        elif formatQuestion in {'1', '.wav', 'wav'}:
-            if clip:
-                _clipsInstance = clippedContent(link)
-                link = _clipsInstance.originalVideoLink
-                functions.downloadVideo(link, name)
-                _clipsInstance.trimContent(name)
-                
-            elif link != '':
-                functions.downloadVideo(link, name)
-
-            functions.convertMP4(name, 'wav', clip)
-
-        else:
-            self.mp3ORwav(name, link, clip)
-
+        response = ''
         
-    def yes1(self):
+        answers = self.questionDictionary["Accepted Answers"][position]
 
+        while True:
+            response = input(question)
+
+            # checks if the question has answers list, if not just returns the response; NO need to run any of the logic again 
+            if not answers:
+                return response
+
+            try:
+                int(response)
+            except ValueError:
+                response = response.lower()         
+            
+            validResponse = any(response in i for i in answers)
+
+            if validResponse:
+                break
+
+        if response in answers[0]:
+            return True
+        
+        return False
+    
+
+    def Q3(self, name, link='', clip=False) -> None:
+        formatQuestion = self.questionPoser('Q3')
+
+        type = '.mp3'
+
+        if not formatQuestion:
+            type = '.wav'
+
+        if clip:
+            _clipsInstance = clippedContent(link)
+            link = _clipsInstance.originalVideoLink
+            functions(name).downloadVideo(link)
+            _clipsInstance.trimContent(name)
+                
+        elif link != '':
+            functions(name).downloadVideo(link)
+
+        functions(name).convertMP4(type, clip)
+
+
+    def Q2Y(self) -> None:
         # get list of Files
         listOfFiles = []
-
-        n = 0
 
         for file in os.listdir():
             if file.endswith(".mp4"):
@@ -234,22 +255,20 @@ class questions():
             dir_path = os.getcwd()
             raise NoMP4FilesToConvertException(f"there are no MP4 files available to be converted in the directory: [{dir_path}]")
 
+        n = 0
         print("Files in Directory:")
         for file in listOfFiles:
             print(f"({n}) {file}")
             n += 1
 
-        # get name or position
-        name = input("\nFile Name: \n>>> ")
+        name =self.questionPoser(self.Q2Y.__name__)
 
         # try to convert to Integer
         try:
             position = int(name)
             file = listOfFiles[position].removesuffix('.mp4')
 
-            print("\nFile Format: \n(0) .mp3 \n(1) .wav")
-
-            self.mp3ORwav(file)
+            self.Q3(file)
 
         # if integer conversion fails with ValueError
         except ValueError:
@@ -257,79 +276,43 @@ class questions():
                 if name.endswith('.mp4'):
                     name = name.removesuffix('.mp4')
 
-                self.mp3ORwav(name)
+                self.Q3(name)
                 
             except FileNotFoundError:
                 print(f"FileNotFoundError: file {name}.mp4 does not exist")
 
 
-    def no1(self):
-        link = input("Video URL: \n>>> ")
+    def Q2N(self) -> None:
+        link = self.questionPoser('Q2N1')
 
         clip = linkValidation(link)
 
-        name = input("File Name: \n>>> ")
-        
-        while True:    
-            audioQuestion = input("Audio Only ('Yes' or 'No'): \n>>> ").lower()
+        name = self.questionPoser('Q2N2')
 
-            if audioQuestion == "yes":
-                
-                print("File Format: \n(0) .mp3 \n(1) .wav")
+        audioQuestion = self.questionPoser('Q2N3')
 
-                self.mp3ORwav(name, link, clip)
+        if audioQuestion:
+            self.Q3(name, link, clip)
 
-                functions.cleanUp(name, clip)
-
-                break
-
-            elif audioQuestion == "no":
-                if clip:
-                    _clipsInstance = clippedContent(link)
-                    link = _clipsInstance.originalVideoLink
-                    functions.downloadVideo(link, name)
-                    _clipsInstance.trimContent(name)
-                    functions.cleanUp(name, clip, False)
-                else:
-                    functions.downloadVideo(link, name)
-
-                break
-
-            else:
-                continue
-        
-
-
-    def question1(self):    
-        MP4ToMP3Question = input("")
-
-        if MP4ToMP3Question in {'y', 'Y', '0'}:
-            self.yes1()
-
-        elif MP4ToMP3Question in {'n', 'N', '1'}:
-            self.no1()
-
+            functions(name).cleanUp(clip)
+        elif clip:
+            _clipsInstance = clippedContent(link)
+            link = _clipsInstance.originalVideoLink
+            functions(name).downloadVideo(link)
+            _clipsInstance.trimContent(name)
+            functions(name).cleanUp(clip, False)    
         else:
-            self.question1
+            functions(name).downloadVideo(link)
 
 
-    def main(self):
-        print("Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n")
-        
-        self.question1()
-        
-        rerun = input("Type R to run again or anything else to close\n")
-        
-        match rerun:
-            case 'R':
-                self.main()
+    def Q1(self) -> None:
+        answer = self.questionPoser('Q1')
 
-            case 'r':
-                self.main()
-            
-            case _:
-                sys.exit(0)
-        
+        if answer:
+            self.Q2Y()
+        else:
+            self.Q2N()
+
 
 if __name__ == '__main__':
-    questions().main()
+    menuNav().Q1()
