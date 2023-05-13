@@ -30,6 +30,9 @@ class NoMP4FilesToConvertException(Exception):
     """Raised when there are no MP4 files in the current directory"""
 
 
+class EndBeforeStartException(Exception):
+    """Raised when the end time is before the start time"""
+
 # error handling
 def show_exception_and_exit(exc_type, exc_value, tb_object):
     """Catches Exceptions and Prevents the App from Auto Closing"""
@@ -75,53 +78,55 @@ def link_validation(link) -> bool:
 
 class ClippedContent():
     """opens chromedriver and will get the videoId, start_time_ms, end_time_ms"""
-    def __init__(self, video_url):
-        options = webdriver.ChromeOptions()
-        options.add_argument('--ignore-certificate-errors')
-        options.add_argument("--test-type")
-        options.add_argument("--headless")
-        driver = webdriver.Chrome(options=options)
+    def __init__(self, video_url = '', custom = False):
+        if not custom:
+            options = webdriver.ChromeOptions()
+            options.add_argument('--ignore-certificate-errors')
+            options.add_argument("--test-type")
+            options.add_argument("--headless")
+            driver = webdriver.Chrome(options=options)
 
-        driver.get(video_url)
+            driver.get(video_url)
 
-        try:
-            # find "accept all" button and submit...
-            button = [button for button in driver.find_elements(by=By.TAG_NAME, value="button")
-                 if button.accessible_name and button.accessible_name.lower() == 'accept all'][0]
-            button.submit()
-        except IndexError:
-            pass
+            try:
+                # find "accept all" button and submit...
+                button = [button for button in driver.find_elements(by=By.TAG_NAME, value="button")
+                    if button.accessible_name and button.accessible_name.lower() == 'accept all'][0]
+                button.submit()
+            except IndexError:
+                pass
 
-        # https://stackoverflow.com/a/26567563/12693728: wait for page to be loaded
-        timeout = 3
-        try:
-            element_present = EC.presence_of_element_located(
-                (By.CLASS_NAME, 'html5-video-container '))
-            WebDriverWait(driver, timeout).until(element_present)
-        except TimeoutException:
-            print("Timed out waiting for page to load")
+            # https://stackoverflow.com/a/26567563/12693728: wait for page to be loaded
+            timeout = 3
+            try:
+                element_present = EC.presence_of_element_located(
+                    (By.CLASS_NAME, 'html5-video-container '))
+                WebDriverWait(driver, timeout).until(element_present)
+            except TimeoutException:
+                print("Timed out waiting for page to load")
 
-        video_id = driver.page_source.split('"videoDetails":{"videoId":"')[1]
-        self.video_id = video_id.split('"')[0]
-        # print(video_id)
+            video_id = driver.page_source.split('"videoDetails":{"videoId":"')[1]
+            self.video_id = video_id.split('"')[0]
+            # print(video_id)
 
-        start_time_ms = driver.page_source.split('"startTimeMs":"')[1]
-        self.start_time_ms = int(start_time_ms.split('"')[0])
+            start_time_ms = driver.page_source.split('"startTimeMs":"')[1]
+            self.start_time_ms = int(start_time_ms.split('"')[0])
 
-        end_time_ms = driver.page_source.split('"endTimeMs":"')[1]
-        self.end_time_ms = int(end_time_ms.split('"')[0])
+            end_time_ms = driver.page_source.split('"endTimeMs":"')[1]
+            self.end_time_ms = int(end_time_ms.split('"')[0])
 
-        driver.quit()
+            driver.quit()
 
-        # get non Clip link AFTER the driver has been closed
-        self.original_video_link ="https://youtu.be/" + self.video_id
+            # get non Clip link AFTER the driver has been closed
+            self.original_video_link ="https://youtu.be/" + self.video_id
 
 
-    def trim_content(self, name) -> None:
+    def trim_content(self, name, start_time_sec=-1, end_time_sec=-1) -> None:
         """Cuts the Video based on start_time_ms and end_time_ms"""
         name_mp4 = name + '.mp4'
 
-        start_time_sec, end_time_sec = self.start_time_ms / 1000, self.end_time_ms / 1000
+        if start_time_sec == -1 and end_time_sec == -1:
+            start_time_sec, end_time_sec = self.start_time_ms / 1000, self.end_time_ms / 1000
 
         video = moviepy.VideoFileClip(name_mp4)
 
@@ -196,14 +201,18 @@ class MenuNav():
     def __init__(self):
         self.question_dictionary = {}
         self.question_dictionary["Codes"] = [
-            'question_1', 'question_2_yes', 'question_2_no_1', 
-            'question_2_no_2', 'question_2_no_3', 'question_3']
+            'question_1', 'question_2_yes', 'question_2_no_1', 'question_2_no_2', 
+            'question_2_no_3', 'question_2_no_3_1', 'question_2_no_3_2', 
+            'question_2_no_4', 'question_3']
         self.question_dictionary["Question"] = [
             "Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n", 
             "File Name: \n>>> ", "Video URL: \n>>> ", "File Name: \n>>> ", 
-            "Audio Only ('Yes' or 'No'): \n", "File Format: \n(0) .mp3 \n(1) .wav"]
+            "Would you like to cut the video? \n0. (Y)\n1. (N)\n", "Start Time (s): \n>>> ",
+            "End Time (s): \n>>> ", "Audio Only ('Yes' or 'No'): \n", 
+            "File Format: \n(0) .mp3 \n(1) .wav"]
         self.question_dictionary["Accepted Answers"] = [
             [['y', 'yes', '0'], ['n', 'no', '1']], False, False, False,
+            [['yes', 'y', '1'], ['no', 'n', '0']], False, False,
             [['yes', 'y', '1'], ['no', 'n', '0']], [['0', '.mp3', 'mp3'], ['1', '.wav', 'wav']]]
 
     def question_poser(self, question_code: str) -> any:
@@ -307,20 +316,37 @@ class MenuNav():
 
         name = self.question_poser('question_2_no_2')
 
-        audio_question = self.question_poser('question_2_no_3')
+        audio_question = self.question_poser('question_2_no_4')
+
+        custom = False
+
+        if not clip : custom = self.question_poser('question_2_no_3')
+
+        if custom:
+            start = int(self.question_poser('question_2_no_3_1'))
+            end = int(self.question_poser('question_2_no_3_2'))
+            if start >= end:
+                raise EndBeforeStartException(
+                    f"your end time: {end}, is before your start time: {start}")
 
         if audio_question:
             self.question_3(name, link, clip)
 
             Functions(name).clean_up(clip)
+
         elif clip:
             clips_instance = ClippedContent(link)
             link = clips_instance.original_video_link
             Functions(name).download_video(link)
             clips_instance.trim_content(name)
             Functions(name).clean_up(clip, False)
+
         else:
             Functions(name).download_video(link)
+
+        if custom:
+            ClippedContent(link, custom).trim_content(name, start, end)
+            Functions(name).clean_up(custom, False)
 
 
     def question_1(self) -> None:
