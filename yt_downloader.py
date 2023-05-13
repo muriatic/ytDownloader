@@ -31,9 +31,9 @@ class NoMP4FilesToConvertException(Exception):
 
 
 # error handling
-def show_exception_and_exit(exc_type, exc_value, trace_back):
+def show_exception_and_exit(exc_type, exc_value, tb_object):
     """Catches Exceptions and Prevents the App from Auto Closing"""
-    traceback.print_exception(exc_type, exc_value, trace_back)
+    traceback.print_exception(exc_type, exc_value, tb_object)
     input("Press ENTER to exit...")
     sys.exit(-1)
 
