@@ -1,7 +1,7 @@
 # ytDownloader v2.1.1
 YouTube Downloader and MP4 to Audio Converter
 ## Long Term Additions:
-- [ ] Add a GUI
+- [x] Add a GUI
 - [ ] Save at different speeds
 - [ ] Custom Push/Commit Commands
 ## SHA-256 Checksum:
