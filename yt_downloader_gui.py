@@ -204,174 +204,55 @@ class Functions():
 
 
 class MenuNav():
-    """menu navigation with question poser and skeleton navs"""
-    # def __init__(self):
-    #     self.question_dictionary = {}
-    #     self.question_dictionary["Codes"] = [
-    #         'question_1', 'question_2_yes', 'question_2_no_1', 'question_2_no_2', 
-    #         'question_2_no_3', 'question_2_no_3_1', 'question_2_no_3_2', 
-    #         'question_2_no_4', 'question_3']
-    #     self.question_dictionary["Question"] = [
-    #         "Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n", 
-    #         "File Name: \n>>> ", "Video URL: \n>>> ", "File Name: \n>>> ", 
-    #         "Would you like to cut the video? \n0. (Y)\n1. (N)\n", "Start Time (s): \n>>> ",
-    #         "End Time (s): \n>>> ", "Audio Only ('Yes' or 'No'): \n", 
-    #         "File Format: \n(0) .mp3 \n(1) .wav"]
-    #     self.question_dictionary["Accepted Answers"] = [
-    #         [['y', 'yes', '0'], ['n', 'no', '1']], False, False, False,
-    #         [['yes', 'y', '1'], ['no', 'n', '0']], False, False,
-    #         [['yes', 'y', '1'], ['no', 'n', '0']], [['0', '.mp3', 'mp3'], ['1', '.wav', 'wav']]]
-
-    # def question_poser(self, question_code: str) -> any:
-    #     """POSING QUESTIONS"""
-    #     position = self.question_dictionary["Codes"].index(question_code)
-    #     question = self.question_dictionary["Question"][position]
-
-    #     response = ''
-
-    #     answers = self.question_dictionary["Accepted Answers"][position]
-
-    #     while True:
-    #         response = input(question)
-
-    #         # checks if the question has answers list, if not just returns the response;
-    #         # NO need to run any of the logic again
-    #         if not answers:
-    #             return response
-
-    #         try:
-    #             int(response)
-    #         except ValueError:
-    #             response = response.lower()
-
-    #         valid_response = any(response in i for i in answers)
-
-    #         if valid_response:
-    #             break
-
-    #     if response in answers[0]:
-    #         return True
-
-    #     return False
-
-
-    def question_3(self, name, link='', clip=False) -> None:
-        """File Format: .mp3 or .wav"""
-        # format_question = self.question_poser('question_3')
-
-        audio_type = '.mp3'
-
-        # if not format_question:
-        #     audio_type = '.wav'
-
-        if clip:
-            clips_instance = ClippedContent(link)
-            link = clips_instance.original_video_link
-            Functions(name).download_video(link)
-            clips_instance.trim_content(name)
-
-        elif link != '':
-            Functions(name).download_video(link)
-
-        Functions(name).convert_mp4(audio_type, clip)
-
-
-    def question_2_yes(self, file_path, audio_type) -> None:
+    """menu navigation that handles input"""
+    def convert_existing_mp4(self, file_path, audio_type) -> None:
         """File Name"""
         # split the total path into path and file 
         original_file_path, nameMP4 = file_path.rsplit('/', 1)
 
-        Functions(nameMP4, original_file_path).convert_mp4(audio_type)
-        # # get list of Files
-        # list_of_files = []
+        functions = Functions(nameMP4, original_file_path)
 
-        # for file in os.listdir():
-        #     if file.endswith(".mp4"):
-        #         list_of_files.append(file)
-
-        # if len(list_of_files) == 0:
-        #     dir_path = os.getcwd()
-        #     raise NoMP4FilesToConvertException(
-        #         f"there are no MP4 files available to be converted in the directory: [{dir_path}]")
-
-        # print("Files in Directory:")
-        # for count, file in enumerate(list_of_files):
-        #     print(f"({count}) {file}")
-
-        # name = self.question_poser(self.question_2_yes.__name__)
-
-        # try to convert to Integer
-        # try:
-        #     position = int(name)
-        #     file = list_of_files[position].removesuffix('.mp4')
-
-        #     self.question_3(file)
-
-        # # if integer conversion fails with ValueError
-        # except ValueError:
-        #     try:
-        #         if name.endswith('.mp4'):
-        #             name = name.removesuffix('.mp4')
-
-        #         self.question_3(name)
-
-        #     except FileNotFoundError:
-        #         print(f"FileNotFoundError: file {name}.mp4 does not exist")
+        functions.convert_mp4(audio_type)
+        functions.clean_up()
 
 
-    def question_2_no(self) -> None:
+    def download_yt_etc(self, link, name, audio_only, file_format, start=None, end=None) -> None:
         """File Name and Video URL"""
-        link = self.question_poser('question_2_no_1')
 
+        # maybe have this activate/deactivate convert button with a try, except block
         clip = link_validation(link)
+        
+        audio_type = '.mp3' if file_format else '.wav'
 
-        name = self.question_poser('question_2_no_2')
+        nameMP4 = name + '.mp4'
 
-        audio_question = self.question_poser('question_2_no_4')
-
-        custom = False
-
-        if not clip : custom = self.question_poser('question_2_no_3')
+        functions = Functions(nameMP4=nameMP4)
+        
+        custom = None not in (start, end)
 
         if custom:
-            start = int(self.question_poser('question_2_no_3_1'))
-            end = int(self.question_poser('question_2_no_3_2'))
-            if start >= end:
-                raise EndBeforeStartException(
-                    f"your end time: {end}, is before your start time: {start}")
-
-        if audio_question:
-            self.question_3(name, link, clip)
-
-            Functions(name).clean_up(clip)
+            ClippedContent(link, custom).trim_content(name, start, end)
+            clip, audio_only = custom
 
         elif clip:
             clips_instance = ClippedContent(link)
             link = clips_instance.original_video_link
-            Functions(name).download_video(link)
+            functions.download_video(link)
             clips_instance.trim_content(name)
-            Functions(name).clean_up(clip, False)
-
+            
         else:
-            Functions(name).download_video(link)
+            functions.download_video(link)
 
-        if custom:
-            ClippedContent(link, custom).trim_content(name, start, end)
-            Functions(name).clean_up(custom, False)
+        if audio_only:
+            # now that we have the downloaded video lets convert it 
+            functions.convert_mp4(audio_type, clip)
 
-
-    def question_1(self) -> None:
-        """Convert existing MP4?"""
-        answer = self.question_poser('question_1')
-
-        if answer:
-            self.question_2_yes()
-        else:
-            self.question_2_no()
+        functions.clean_up(clip, audio_only)
 
 
 def create_window():
     buttonSize = (23,2)
+    doubleButtonSize = (48,2)
     inputFieldSize1 = 30
     inputFieldSize2 = 5
 
@@ -387,7 +268,7 @@ def create_window():
             sg.Button("Download a YouTube Video", key='downloadYTVideo', s=buttonSize)
         ],
         [
-            sg.Button("Exit", key='Exit', s=buttonSize)
+            sg.Button("Exit", key='Exit', s=doubleButtonSize)
         ]
     ]
 
@@ -461,7 +342,7 @@ def create_window():
             sg.Button("Back", key='Back', s=buttonSize),
             sg.Button("Exit", key='Exit', s=buttonSize)
         ]])],
-        [sg.Button("Convert", key='convert', disabled=True)]
+        [sg.Button("Convert", key='Convert', disabled=True, s=doubleButtonSize)]
     ]
 
     layout = [
@@ -498,10 +379,10 @@ def create_window():
 
         if event == '-convertToMP3-' and values['-FILEPATH-'] != '':
             # NEED TO CHANGE __INIT__ to handle the FILE path, find nameMP4 and name
-            MenuNav().question_2_yes(file_path=values['-FILEPATH-'], audio_type='.mp3')
+            MenuNav().convert_existing_mp4(file_path=values['-FILEPATH-'], audio_type='.mp3')
 
         if event == '-convertToWAV-' and values['-FILEPATH-'] != '':
-            MenuNav().question_2_yes(file_path=values['-FILEPATH-'], audio_type='.wav')
+            MenuNav().convert_existing_mp4(file_path=values['-FILEPATH-'], audio_type='.wav')
 
         if event == 'downloadYTVideo':
             window['-home-'].update(visible=False)
@@ -519,20 +400,31 @@ def create_window():
             window['timeStampsEnd'].update(disabled=True)
 
         # maybe find an input field with only numbers
-        if '' not in (values['URL'], values['fileName'], values['timeStampsStart'], values['timeStampsEnd']) and int(values['timeStampsStart']) < int(values['timeStampsEnd']):
-            window['convert'].update(disabled=False)
+        if '' not in (values['URL'], values['fileName'], values['timeStampsStart'], values['timeStampsEnd']) and values['_CUSTOMTIMESTAMPSYES_']:
+            try:
+                if int(values['timeStampsStart']) < int(values['timeStampsEnd']):
+                    window['Convert'].update(disabled=False)
+                else:
+                    window['Convert'].update(disabled=True)
+            except ValueError:
+                window['Convert'].update(disabled=True)
+
+        elif '' not in (values['URL'], values['fileName']) and values['_CUSTOMTIMESTAMPSNO_']:
+            window['Convert'].update(disabled=False)
+
         else:
-            window['convert'].update(disabled=True)
+            window['Convert'].update(disabled=True)
+            
 
-        if event == 'convert':
-            customTimeStamp = values['_CUSTOMTIMESTAMPSYES_']
-            if '' not in (values['timeStampsStart'], values['timeStampsEnd']):
-                start, end = values['timeStampsStart'], values['timeStampsEnd']
-                # maybe send to the questions logic now??
-                print("DO FUNCTION WITH: ", values['URL'], values['fileName'], values['audioOnly'], customTimeStamp, start, end, not values['fileFormat'])
+        if event == 'Convert':
+            
+            # check if they want custom time stamps
+            if values['_CUSTOMTIMESTAMPSYES_']:
+                MenuNav().download_yt_etc(link=values['URL'], name=values['fileName'], audio_only=values['audioOnly'], file_format=values['fileFormat'], start=values['timeStampsStart'], end=values['timeStampsEnd'])
+
             else: 
+                MenuNav().download_yt_etc(link=values['URL'], name=values['fileName'], audio_only=values['audioOnly'], file_format=values['fileFormat'])
 
-                print("DO FUNCTION WITH: ", values['URL'], values['fileName'], values['audioOnly'], customTimeStamp, not values['fileFormat'])
 
     window.close()
 
