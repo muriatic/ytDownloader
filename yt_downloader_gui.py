@@ -149,9 +149,10 @@ class ClippedContent():
 class Functions():
     """necessary Functions for downloading and converting the MP4s and cleaning up after"""
     # class videos():
-    def __init__(self, name):
-        self.name_mp4 = name + '.mp4'
-        self.name = name
+    def __init__(self, nameMP4, original_file_path=None):
+        self.name_mp4 = nameMP4
+        self.name = nameMP4.removesuffix('.mp4')
+        self.original_file_path = original_file_path
 
 
     def download_video(self, link) -> None:
@@ -176,7 +177,9 @@ class Functions():
 
         dir_path = os.getcwd()
 
-        video_file_path = os.path.join(dir_path, self.name_mp4)
+        video_path = self.original_file_path if self.original_file_path != None else dir_path
+
+        video_file_path = os.path.join(video_path, self.name_mp4)
         audio_file_path = os.path.join(dir_path, end_name)
 
         if os.path.exists(video_file_path):
@@ -202,64 +205,64 @@ class Functions():
 
 class MenuNav():
     """menu navigation with question poser and skeleton navs"""
-    def __init__(self):
-        self.question_dictionary = {}
-        self.question_dictionary["Codes"] = [
-            'question_1', 'question_2_yes', 'question_2_no_1', 'question_2_no_2', 
-            'question_2_no_3', 'question_2_no_3_1', 'question_2_no_3_2', 
-            'question_2_no_4', 'question_3']
-        self.question_dictionary["Question"] = [
-            "Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n", 
-            "File Name: \n>>> ", "Video URL: \n>>> ", "File Name: \n>>> ", 
-            "Would you like to cut the video? \n0. (Y)\n1. (N)\n", "Start Time (s): \n>>> ",
-            "End Time (s): \n>>> ", "Audio Only ('Yes' or 'No'): \n", 
-            "File Format: \n(0) .mp3 \n(1) .wav"]
-        self.question_dictionary["Accepted Answers"] = [
-            [['y', 'yes', '0'], ['n', 'no', '1']], False, False, False,
-            [['yes', 'y', '1'], ['no', 'n', '0']], False, False,
-            [['yes', 'y', '1'], ['no', 'n', '0']], [['0', '.mp3', 'mp3'], ['1', '.wav', 'wav']]]
+    # def __init__(self):
+    #     self.question_dictionary = {}
+    #     self.question_dictionary["Codes"] = [
+    #         'question_1', 'question_2_yes', 'question_2_no_1', 'question_2_no_2', 
+    #         'question_2_no_3', 'question_2_no_3_1', 'question_2_no_3_2', 
+    #         'question_2_no_4', 'question_3']
+    #     self.question_dictionary["Question"] = [
+    #         "Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n", 
+    #         "File Name: \n>>> ", "Video URL: \n>>> ", "File Name: \n>>> ", 
+    #         "Would you like to cut the video? \n0. (Y)\n1. (N)\n", "Start Time (s): \n>>> ",
+    #         "End Time (s): \n>>> ", "Audio Only ('Yes' or 'No'): \n", 
+    #         "File Format: \n(0) .mp3 \n(1) .wav"]
+    #     self.question_dictionary["Accepted Answers"] = [
+    #         [['y', 'yes', '0'], ['n', 'no', '1']], False, False, False,
+    #         [['yes', 'y', '1'], ['no', 'n', '0']], False, False,
+    #         [['yes', 'y', '1'], ['no', 'n', '0']], [['0', '.mp3', 'mp3'], ['1', '.wav', 'wav']]]
 
-    def question_poser(self, question_code: str) -> any:
-        """POSING QUESTIONS"""
-        position = self.question_dictionary["Codes"].index(question_code)
-        question = self.question_dictionary["Question"][position]
+    # def question_poser(self, question_code: str) -> any:
+    #     """POSING QUESTIONS"""
+    #     position = self.question_dictionary["Codes"].index(question_code)
+    #     question = self.question_dictionary["Question"][position]
 
-        response = ''
+    #     response = ''
 
-        answers = self.question_dictionary["Accepted Answers"][position]
+    #     answers = self.question_dictionary["Accepted Answers"][position]
 
-        while True:
-            response = input(question)
+    #     while True:
+    #         response = input(question)
 
-            # checks if the question has answers list, if not just returns the response;
-            # NO need to run any of the logic again
-            if not answers:
-                return response
+    #         # checks if the question has answers list, if not just returns the response;
+    #         # NO need to run any of the logic again
+    #         if not answers:
+    #             return response
 
-            try:
-                int(response)
-            except ValueError:
-                response = response.lower()
+    #         try:
+    #             int(response)
+    #         except ValueError:
+    #             response = response.lower()
 
-            valid_response = any(response in i for i in answers)
+    #         valid_response = any(response in i for i in answers)
 
-            if valid_response:
-                break
+    #         if valid_response:
+    #             break
 
-        if response in answers[0]:
-            return True
+    #     if response in answers[0]:
+    #         return True
 
-        return False
+    #     return False
 
 
     def question_3(self, name, link='', clip=False) -> None:
         """File Format: .mp3 or .wav"""
-        format_question = self.question_poser('question_3')
+        # format_question = self.question_poser('question_3')
 
         audio_type = '.mp3'
 
-        if not format_question:
-            audio_type = '.wav'
+        # if not format_question:
+        #     audio_type = '.wav'
 
         if clip:
             clips_instance = ClippedContent(link)
@@ -273,43 +276,47 @@ class MenuNav():
         Functions(name).convert_mp4(audio_type, clip)
 
 
-    def question_2_yes(self) -> None:
+    def question_2_yes(self, file_path, audio_type) -> None:
         """File Name"""
-        # get list of Files
-        list_of_files = []
+        # split the total path into path and file 
+        original_file_path, nameMP4 = file_path.rsplit('/', 1)
 
-        for file in os.listdir():
-            if file.endswith(".mp4"):
-                list_of_files.append(file)
+        Functions(nameMP4, original_file_path).convert_mp4(audio_type)
+        # # get list of Files
+        # list_of_files = []
 
-        if len(list_of_files) == 0:
-            dir_path = os.getcwd()
-            raise NoMP4FilesToConvertException(
-                f"there are no MP4 files available to be converted in the directory: [{dir_path}]")
+        # for file in os.listdir():
+        #     if file.endswith(".mp4"):
+        #         list_of_files.append(file)
 
-        print("Files in Directory:")
-        for count, file in enumerate(list_of_files):
-            print(f"({count}) {file}")
+        # if len(list_of_files) == 0:
+        #     dir_path = os.getcwd()
+        #     raise NoMP4FilesToConvertException(
+        #         f"there are no MP4 files available to be converted in the directory: [{dir_path}]")
 
-        name = self.question_poser(self.question_2_yes.__name__)
+        # print("Files in Directory:")
+        # for count, file in enumerate(list_of_files):
+        #     print(f"({count}) {file}")
+
+        # name = self.question_poser(self.question_2_yes.__name__)
 
         # try to convert to Integer
-        try:
-            position = int(name)
-            file = list_of_files[position].removesuffix('.mp4')
+        # try:
+        #     position = int(name)
+        #     file = list_of_files[position].removesuffix('.mp4')
 
-            self.question_3(file)
+        #     self.question_3(file)
 
-        # if integer conversion fails with ValueError
-        except ValueError:
-            try:
-                if name.endswith('.mp4'):
-                    name = name.removesuffix('.mp4')
+        # # if integer conversion fails with ValueError
+        # except ValueError:
+        #     try:
+        #         if name.endswith('.mp4'):
+        #             name = name.removesuffix('.mp4')
 
-                self.question_3(name)
+        #         self.question_3(name)
 
-            except FileNotFoundError:
-                print(f"FileNotFoundError: file {name}.mp4 does not exist")
+        #     except FileNotFoundError:
+        #         print(f"FileNotFoundError: file {name}.mp4 does not exist")
 
 
     def question_2_no(self) -> None:
@@ -389,7 +396,7 @@ def create_window():
             sg.Text("Select a File to Convert: "),
             sg.Input(key='_FILEBROWSE_', enable_events=True, size=inputFieldSize1, disabled=True),
             sg.T(),
-            sg.FileBrowse(target='_FILEBROWSE_', key='-FILE-', file_types=(("MP4 Files", "*.mp4")))
+            sg.FileBrowse(target='_FILEBROWSE_', key='-FILEPATH-', file_types=(("MP4 Files", "*.mp4")))
         ],
         [
             sg.Button("Convert to MP3", key='-convertToMP3-', s=buttonSize, disabled=True),
@@ -489,12 +496,12 @@ def create_window():
             window['-convertToMP3-'].update(disabled=False)
             window['-convertToWAV-'].update(disabled=False)
 
-        if event == '-convertToMP3-' and values['-FILE-'] != '':
+        if event == '-convertToMP3-' and values['-FILEPATH-'] != '':
             # NEED TO CHANGE __INIT__ to handle the FILE path, find nameMP4 and name
-            Functions(values['-FILE-']).convert_mp4('mp3')
+            MenuNav().question_2_yes(file_path=values['-FILEPATH-'], audio_type='.mp3')
 
-        if event == '-convertToWAV-' and values['-FILE-'] != '':
-            Functions(values['-FILE-']).convert_mp4('wav')
+        if event == '-convertToWAV-' and values['-FILEPATH-'] != '':
+            MenuNav().question_2_yes(file_path=values['-FILEPATH-'], audio_type='.wav')
 
         if event == 'downloadYTVideo':
             window['-home-'].update(visible=False)
