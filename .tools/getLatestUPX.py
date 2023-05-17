@@ -37,7 +37,3 @@ try:
     # os.remove
 except OSError:
     pass
-
-
-# if os.path.isfile("upx.zip"):
-#     os.remove("upx.zip")
