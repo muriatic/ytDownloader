@@ -1,105 +1,105 @@
 @echo off
 
-@REM copy yt_downloader.py .venv
+copy yt_downloader.py .venv
 
-@REM echo yt_downloader.py copied
+echo yt_downloader.py copied
 
-@REM copy images\icon.ico .venv
+copy images\icon.ico .venv
 
-@REM echo icon.ico copied
+echo icon.ico copied
 
-@REM copy dependencies.md .venv
+copy dependencies.md .venv
 
-@REM echo dependencies.md copied
+echo dependencies.md copied
 
 cd .venv
 
-@REM Rem create requirement.txt file
-@REM setlocal
+Rem create requirement.txt file
+setlocal
 
-@REM :: Empty the contents of the file - just for testing this script
-@REM type nul >"requirements.txt"
+:: Empty the contents of the file - just for testing this script
+type nul >"requirements.txt"
 
-@REM :: Unset the flag if for some reason it's been set beforehand
-@REM set dependencies=
+:: Unset the flag if for some reason it's been set beforehand
+set dependencies=
 
-@REM :: Tokenize the contents - everything after the first delimiter
-@REM :: (in this case space) will be contained in the second token (%%j)
-@REM for /f "tokens=1,*" %%i in (dependencies.md) do (
-@REM     if "%%~i"=="##" (
-@REM         if not defined dependencies (
-@REM             set "dependencies=true"
-@REM         ) else (
-@REM             set "dependencies="
-@REM         )
-@REM     ) else if defined dependencies if "%%~i"=="-" (
-@REM         >>"requirements.txt" echo(%%~j)
-@REM     )
-@REM )
+:: Tokenize the contents - everything after the first delimiter
+:: (in this case space) will be contained in the second token (%%j)
+for /f "tokens=1,*" %%i in (dependencies.md) do (
+        if "%%~i"=="##" (
+            if not defined dependencies (
+                set "dependencies=true"
+        ) else (
+                set "dependencies="
+        )
+    ) else if defined dependencies if "%%~i"=="-" (
+            >>"requirements.txt" echo(%%~j)
+    )
+)
 
 
-@REM echo;requirements.txt created
+echo;requirements.txt created
 
-@REM python -m venv VirtualytDownloader
+python -m venv VirtualytDownloader
 
-@REM @echo on
-@REM pip install -r requirements.txt
+@echo on
+pip install -r requirements.txt
 
-@REM call VirtualytDownloader\Scripts\activate.bat
+call VirtualytDownloader\Scripts\activate.bat
 
-@REM pyinstaller ytDownloader.py -F --icon=icon.ico
+pyinstaller ytDownloader.py -F --icon=icon.ico
 
-@REM call VirtualytDownloader\Scripts\deactivate.bat
+call VirtualytDownloader\Scripts\deactivate.bat
 
-@REM Rem Cleanup
-@REM del yt_downloader.py
-@REM echo yt_downloader.py deleted
+Rem Cleanup
+del yt_downloader.py
+echo yt_downloader.py deleted
 
-@REM del icon.ico
-@REM echo icon.ico deleted
+del icon.ico
+echo icon.ico deleted
 
-@REM del requirements.txt
-@REM echo requirements.txt deleted
+del requirements.txt
+echo requirements.txt deleted
 
-@REM del dependencies.md
-@REM echo dependencies.md deleted
+del dependencies.md
+echo dependencies.md deleted
 
 if exist .\build rmdir .\build /S /Q
 if exist .\VirtualytDownloader rmdir .\VirtualytDownloader /S /Q
 if exist .\VirtualytDownloader rmdir .\VirtualytDownloader /S /Q
 if exist ytDownloader.spec del ytDownloader.spec /S /Q
 
-@REM for /f "delims=" %%a in ('powershell .\SHA256CheckSum.ps1') do Set "$Value=%%a"
+for /f "delims=" %%a in ('powershell .\SHA256CheckSum.ps1') do Set "$Value=%%a"
 
-@REM echo;Checksum Created
+echo;Checksum Created
 
-@REM cd ../
+cd ../
 
 
-@REM REM remove last line and any spaces
-@REM SetLocal DisableDelayedExpansion
+REM remove last line and any spaces
+SetLocal DisableDelayedExpansion
 
-@REM Set "SrcFile=readme.md"
+Set "SrcFile=readme.md"
 
-@REM If Not Exist "%SrcFile%" Exit /B
-@REM Copy /Y "%SrcFile%" "%SrcFile%.bak">Nul 2>&1||Exit /B
+If Not Exist "%SrcFile%" Exit /B
+Copy /Y "%SrcFile%" "%SrcFile%.bak">Nul 2>&1||Exit /B
 
-@REM (   Set "Line="
-@REM     For /F "UseBackQ Delims=" %%A In ("%SrcFile%.bak") Do (
-@REM         SetLocal EnableDelayedExpansion
-@REM         If Defined Line Echo !Line!
-@REM         EndLocal
-@REM         Set "Line=%%A"))>"%SrcFile%"
-@REM EndLocal
+(   Set "Line="
+     For /F "UseBackQ Delims=" %%A In ("%SrcFile%.bak") Do (
+        SetLocal EnableDelayedExpansion
+        If Defined Line Echo !Line!
+        EndLocal
+        Set "Line=%%A"))>"%SrcFile%"
+EndLocal
 
-@REM REM add checksum to the end
+REM add checksum to the end
 
-@REM Set out="."
-@REM (
-@REM     Echo;%$Value%
-@REM ) >> %out%\README.md
+Set out="."
+(
+    Echo;%$Value%
+) >> %out%\README.md
 
-@REM REM delete the backup since it is unnecessary
-@REM del README.md.bak
+ REM delete the backup since it is unnecessary
+ del README.md.bak
 
-@REM Exit /B
+Exit /B
