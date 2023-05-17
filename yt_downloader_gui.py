@@ -146,7 +146,7 @@ class ClippedContent():
         """Takes a custom timestamp and will cut accordingly"""
 
 
-class Functions():
+class VideoData():
     """necessary Functions for downloading and converting the MP4s and cleaning up after"""
     # class videos():
     def __init__(self, nameMP4, original_file_path=None):
@@ -210,7 +210,7 @@ class MenuNav():
         # split the total path into path and file 
         original_file_path, nameMP4 = file_path.rsplit('/', 1)
 
-        functions = Functions(nameMP4, original_file_path)
+        functions = VideoData(nameMP4, original_file_path)
 
         functions.convert_mp4(audio_type)
         functions.clean_up()
@@ -226,7 +226,7 @@ class MenuNav():
 
         nameMP4 = name + '.mp4'
 
-        functions = Functions(nameMP4=nameMP4)
+        functions = VideoData(nameMP4=nameMP4)
         
         custom = None not in (start, end)
 
@@ -314,8 +314,10 @@ def create_window():
         [
             sg.Column([
                 [sg.Radio("Yes", 'audioOnly', key='audioOnly')],
+                ### maybe disable if URL is detected as CLIP????
                 [sg.Radio("Yes", 'customTimestamps', key="_CUSTOMTIMESTAMPSYES_", enable_events=True)],
                 [sg.Input("", disabled=True, key='timeStampsStart', size=inputFieldSize2, enable_events=True)],
+                ### fileFormat should be disabled unless audioOnly is True
                 [sg.Radio(".mp3", "fileFormat", key='fileFormat', default=True)]
             ]),
             sg.Column([
@@ -367,7 +369,6 @@ def create_window():
             window['-convertMP4-'].update(visible=False)
             window['-downloadYTVideo-'].update(visible=False)
             window['-home-'].update(visible=True)
-
 
         if event == 'convertMP4':
             window['-home-'].update(visible=False)
