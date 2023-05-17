@@ -1,100 +1,105 @@
 @echo off
 
-copy yt_downloader.py .venv
+@REM copy yt_downloader.py .venv
 
-echo yt_downloader.py copied
+@REM echo yt_downloader.py copied
 
-copy images\icon.ico .venv
+@REM copy images\icon.ico .venv
 
-echo icon.ico copied
+@REM echo icon.ico copied
 
-copy dependencies.md .venv
+@REM copy dependencies.md .venv
 
-echo dependencies.md copied
+@REM echo dependencies.md copied
 
 cd .venv
 
-Rem create requirement.txt file
-setlocal
+@REM Rem create requirement.txt file
+@REM setlocal
 
-:: Empty the contents of the file - just for testing this script
-type nul >"requirements.txt"
+@REM :: Empty the contents of the file - just for testing this script
+@REM type nul >"requirements.txt"
 
-:: Unset the flag if for some reason it's been set beforehand
-set dependencies=
+@REM :: Unset the flag if for some reason it's been set beforehand
+@REM set dependencies=
 
-:: Tokenize the contents - everything after the first delimiter
-:: (in this case space) will be contained in the second token (%%j)
-for /f "tokens=1,*" %%i in (dependencies.md) do (
-    if "%%~i"=="##" (
-        if not defined dependencies (
-            set "dependencies=true"
-        ) else (
-            set "dependencies="
-        )
-    ) else if defined dependencies if "%%~i"=="-" (
-        >>"requirements.txt" echo(%%~j)
-    )
-)
-
-
-echo;requirements.txt created
-
-python -m venv ytDownloader
-
-@echo on
-pip install -r requirements.txt
-
-call ytDownloader\Scripts\activate.bat
-
-pyinstaller ytDownloader.py -F --icon=icon.ico --upx-dir upx
-
-call ytDownloader\Scripts\deactivate.bat
-
-Rem Cleanup
-del yt_downloader.py
-echo yt_downloader.py deleted
-
-del icon.ico
-echo icon.ico deleted
-
-del requirements.txt
-echo requirements.txt deleted
-
-del dependencies.md
-echo dependencies.md deleted
-
-for /f "delims=" %%a in ('powershell .\SHA256CheckSum.ps1') do Set "$Value=%%a"
-
-echo;Checksum Created
-
-cd ../
+@REM :: Tokenize the contents - everything after the first delimiter
+@REM :: (in this case space) will be contained in the second token (%%j)
+@REM for /f "tokens=1,*" %%i in (dependencies.md) do (
+@REM     if "%%~i"=="##" (
+@REM         if not defined dependencies (
+@REM             set "dependencies=true"
+@REM         ) else (
+@REM             set "dependencies="
+@REM         )
+@REM     ) else if defined dependencies if "%%~i"=="-" (
+@REM         >>"requirements.txt" echo(%%~j)
+@REM     )
+@REM )
 
 
-REM remove last line and any spaces
-SetLocal DisableDelayedExpansion
+@REM echo;requirements.txt created
 
-Set "SrcFile=readme.md"
+@REM python -m venv VirtualytDownloader
 
-If Not Exist "%SrcFile%" Exit /B
-Copy /Y "%SrcFile%" "%SrcFile%.bak">Nul 2>&1||Exit /B
+@REM @echo on
+@REM pip install -r requirements.txt
 
-(   Set "Line="
-    For /F "UseBackQ Delims=" %%A In ("%SrcFile%.bak") Do (
-        SetLocal EnableDelayedExpansion
-        If Defined Line Echo !Line!
-        EndLocal
-        Set "Line=%%A"))>"%SrcFile%"
-EndLocal
+@REM call VirtualytDownloader\Scripts\activate.bat
 
-REM add checksum to the end
+@REM pyinstaller ytDownloader.py -F --icon=icon.ico
 
-Set out="."
-(
-    Echo;%$Value%
-) >> %out%\README.md
+@REM call VirtualytDownloader\Scripts\deactivate.bat
 
-REM delete the backup since it is unnecessary
-del README.md.bak
+@REM Rem Cleanup
+@REM del yt_downloader.py
+@REM echo yt_downloader.py deleted
 
-Exit /B
+@REM del icon.ico
+@REM echo icon.ico deleted
+
+@REM del requirements.txt
+@REM echo requirements.txt deleted
+
+@REM del dependencies.md
+@REM echo dependencies.md deleted
+
+if exist .\build rmdir .\build /S /Q
+if exist .\VirtualytDownloader rmdir .\VirtualytDownloader /S /Q
+if exist .\VirtualytDownloader rmdir .\VirtualytDownloader /S /Q
+if exist ytDownloader.spec del ytDownloader.spec /S /Q
+
+@REM for /f "delims=" %%a in ('powershell .\SHA256CheckSum.ps1') do Set "$Value=%%a"
+
+@REM echo;Checksum Created
+
+@REM cd ../
+
+
+@REM REM remove last line and any spaces
+@REM SetLocal DisableDelayedExpansion
+
+@REM Set "SrcFile=readme.md"
+
+@REM If Not Exist "%SrcFile%" Exit /B
+@REM Copy /Y "%SrcFile%" "%SrcFile%.bak">Nul 2>&1||Exit /B
+
+@REM (   Set "Line="
+@REM     For /F "UseBackQ Delims=" %%A In ("%SrcFile%.bak") Do (
+@REM         SetLocal EnableDelayedExpansion
+@REM         If Defined Line Echo !Line!
+@REM         EndLocal
+@REM         Set "Line=%%A"))>"%SrcFile%"
+@REM EndLocal
+
+@REM REM add checksum to the end
+
+@REM Set out="."
+@REM (
+@REM     Echo;%$Value%
+@REM ) >> %out%\README.md
+
+@REM REM delete the backup since it is unnecessary
+@REM del README.md.bak
+
+@REM Exit /B
