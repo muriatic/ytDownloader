@@ -14,14 +14,14 @@ import requests
 import eel
 
 # start eel local web server 
-eel.init("web")
+eel.init("webFiles")
 
 # starts chrome
 # can add params like port, host, mode, size, 
 eel.start("index.html")
 
 
-# sys.exit(-1)
+sys.exit(-1)
 
 ### END OF IMPORT ###
 
