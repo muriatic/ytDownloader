@@ -27,7 +27,7 @@ class NonYoutubeLinkException(Exception):
 
 
 class VideoUnavailableException(Exception):
-    """Raised when the YouTube video is unavailable or it is a non-video link"""
+    """Raised when the YouTube video is unavailable"""
 
 
 class NoMP4FilesToConvertException(Exception):
@@ -36,6 +36,9 @@ class NoMP4FilesToConvertException(Exception):
 
 class EndBeforeStartException(Exception):
     """Raised when the end time is before the start time"""
+
+class NonVideoLinkException(Exception):
+    """Raised when a non-video youtube link is entered"""
 
 # error handling
 def show_exception_and_exit(exc_type, exc_value, tb_object):
@@ -47,37 +50,48 @@ def show_exception_and_exit(exc_type, exc_value, tb_object):
 sys.excepthook = show_exception_and_exit
 
 
-def link_validation(link) -> bool:
-    """Tests to make sure the link is valid and if successful, returns whether it is a clip"""
-    parsed_url = urlparse(link)
-    netloc = parsed_url.netloc
-    path = parsed_url.path
-    #check if it is a YouTube link
-    if netloc not in ("www.youtube.com", "youtu.be", "youtube.com"):
-        raise NonYoutubeLinkException(f"link {link} is not a YouTube address")
+class link_validation():
+    def __init__(self, link):
+        self.link = link
+        self.parsed_url = urlparse(link)
 
-    request = requests.get(link, timeout=3)
+    def is_clip(self) -> bool:
+        """Tests to make sure the link is valid and if successful, returns whether it is a clip"""        
+        # check if it is a clip
+        # clips path start with /clip
+        if self.parsed_url.path.startswith("/clip"):
+            return True
+        
+        return False
+    
 
-    # check if it is a clip
-    # clips path start with /clip
-    if parsed_url.path.startswith("/clip"):
-        return True
+    def partial_validation(self) -> None:
+        parsed_url = urlparse(self.link)
 
-    # check if it is a traditional video
-    # videos path start with /watch or nothing if the netloc is youtu.be
-    if not (path.startswith("/watch") or path.startswith("/shorts")) and netloc != "youtu.be":
-        raise VideoUnavailableException(f"{link} is a non-video YouTube link")
+        netloc = parsed_url.netloc
+        path = parsed_url.path
 
-    # check if the video is available
-    if "Video unavailable" in request.text:
-        raise VideoUnavailableException(
-            f"the YouTube video at: {link} is unavailable; please check that your link is correct")
+        #check if it is a YouTube link
+        if netloc not in ("www.youtube.com", "youtu.be", "youtube.com"):
+            raise NonYoutubeLinkException(f"link {self.link} is not a YouTube address")
 
-    # check to see if YouTube returns a good status code (200)
-    if request.status_code != 200:
-        raise InvalidLinkException(f"link {link} returned Status Code {request.status_code}")
+        # check if it is a traditional video
+        # videos path start with /watch or nothing if the netloc is youtu.be
+        if not (path.startswith("/watch") or path.startswith("/shorts")) and netloc != "youtu.be":
+            raise NonVideoLinkException(f"{self.link} is a non-video YouTube link")
+        
 
-    return False
+    def full_link_validation(self) -> None:
+        request = requests.get(self.link, timeout=3)
+
+        # check if the video is available
+        if "Video unavailable" in request.text:
+            raise VideoUnavailableException(
+                f"the YouTube video at: {self, self.link} is unavailable; please check that your link is correct")
+
+        # check to see if YouTube returns a good status code (200)
+        if request.status_code != 200:
+            raise InvalidLinkException(f"link {self, self.link} returned Status Code {request.status_code}")
 
 
 class ClippedContent():
@@ -142,9 +156,6 @@ class ClippedContent():
 
         video.close()
 
-    def custom_timestamp(self, start, end) -> None:
-        """Takes a custom timestamp and will cut accordingly"""
-
 
 class VideoData():
     """necessary Functions for downloading and converting the MP4s and cleaning up after"""
@@ -161,12 +172,10 @@ class VideoData():
 
         youtube = YouTube(download_link)
 
-        print("Be patient. Downloading...")
-
         video = youtube.streams.get_highest_resolution()
         video.download(filename=self.name_mp4)
 
-        print("Video Downloaded Successfully")
+        return True
 
 
     def convert_mp4(self, audio_type, clip=False) -> None:
@@ -220,8 +229,8 @@ class MenuNav():
         """File Name and Video URL"""
 
         # maybe have this activate/deactivate convert button with a try, except block
-        clip = link_validation(link)
-        
+        clip = link_validation(link).is_clip()
+        link_validation(link).full_link_validation()
         audio_type = '.mp3' if file_format else '.wav'
 
         nameMP4 = name + '.mp4'
@@ -237,11 +246,11 @@ class MenuNav():
         elif clip:
             clips_instance = ClippedContent(link)
             link = clips_instance.original_video_link
-            functions.download_video(link)
+            downloaded = functions.download_video(link)
             clips_instance.trim_content(name)
             
         else:
-            functions.download_video(link)
+            downloaded = functions.download_video(link)
 
         if audio_only:
             # now that we have the downloaded video lets convert it 
@@ -249,187 +258,224 @@ class MenuNav():
 
         functions.clean_up(clip, audio_only)
 
+        return downloaded
 
-def create_window():
-    buttonSize = (23,2)
-    doubleButtonSize = (48,2)
-    inputFieldSize1 = 30
-    inputFieldSize2 = 5
 
-    sg.set_options(font=("Courier New", 12))
-    sg.theme('DarkTeal2')
+    def convert_button(self, URL, file_name, start, end, custom_yes, custom_no):
+        try:
+            link_validation(URL).partial_validation()
+        except NonYoutubeLinkException:
+            return True
+        except NonVideoLinkException:
+            return True
+        except InvalidLinkException:
+            return True
 
-    layout1 = [
-        [
-            sg.Text("What would you like to do?")
-        ],
-        [
-            sg.Button("Convert MP4 to Audio", key='convertMP4', s=buttonSize),
-            sg.Button("Download a YouTube Video", key='downloadYTVideo', s=buttonSize)
-        ],
-        [
-            sg.Button("Exit", key='Exit', s=doubleButtonSize)
-        ]
-    ]
-
-    layout2 = [
-        [
-            sg.Text("Select a File to Convert: "),
-            sg.Input(key='_FILEBROWSE_', enable_events=True, size=inputFieldSize1, disabled=True),
-            sg.T(),
-            sg.FileBrowse(target='_FILEBROWSE_', key='-FILEPATH-', file_types=(("MP4 Files", "*.mp4")))
-        ],
-        [
-            sg.Button("Convert to MP3", key='-convertToMP3-', s=buttonSize, disabled=True),
-            sg.Button("Convert to WAV", key='-convertToWAV-', s=buttonSize, disabled=True)
-        ],
-        [
-            sg.Button("Back", key='Back', s=buttonSize),
-            sg.Button("Exit", key='Exit', s=buttonSize)
-        ]
-    ]
-
-    col3_1_1 = [
-        [sg.Text("Video URL   >>>")],
-        [sg.Text("File Name   >>>")]
-    ]
-
-    col3_1_2 = [
-        [
-            sg.Input(size=inputFieldSize1, key='URL', enable_events=True)
-        ],
-        [
-            sg.Input(size=inputFieldSize1, key='fileName', enable_events=True)
-        ]
-    ]
-
-    col3_2_1 = [
-        [sg.Text("Audio Only? ")],
-        [sg.Text("Custom Timestamps? ")],
-        [sg.Text("Times: ", key='timeStamps')],
-        [sg.Text("File Format: ")]
-    ]
-
-    col3_2_2 = [
-        [
-            sg.Column([
-                [sg.Radio("Yes", 'audioOnly', key='audioOnly')],
-                ### maybe disable if URL is detected as CLIP????
-                [sg.Radio("Yes", 'customTimestamps', key="_CUSTOMTIMESTAMPSYES_", enable_events=True)],
-                [sg.Input("", disabled=True, key='timeStampsStart', size=inputFieldSize2, enable_events=True)],
-                ### fileFormat should be disabled unless audioOnly is True
-                [sg.Radio(".mp3", "fileFormat", key='fileFormat', default=True)]
-            ]),
-            sg.Column([
-                [sg.Radio("No", 'audioOnly', default=True)],
-                [sg.Radio("No", 'customTimestamps', key='_CUSTOMTIMESTAMPSNO_', enable_events=True, default=True)],
-                [sg.Input("", disabled=True, key='timeStampsEnd', size=inputFieldSize2, enable_events=True)],
-                [sg.Radio(".wav", "fileFormat")]
-            ])
-        ]
-    ]
-
-    layout3 = [
-        [sg.Column([
-            [
-                sg.Column(col3_1_1),
-                sg.Column(col3_1_2)
-            ],
-            [
-                sg.Column(col3_2_1),
-                sg.Column(col3_2_2)
-            ]
-        ])],
-        [sg.Column([[
-            sg.Button("Back", key='Back', s=buttonSize),
-            sg.Button("Exit", key='Exit', s=buttonSize)
-        ]])],
-        [sg.Button("Convert", key='Convert', disabled=True, s=doubleButtonSize)]
-    ]
-
-    layout = [
-        [
-            sg.Column(layout1, key='-home-', element_justification='center'), 
-            sg.Column(layout2, visible=False, key='-convertMP4-', element_justification='center'),
-            sg.Column(layout3, visible=False, key='-downloadYTVideo-', element_justification='center')
-        ]
-    ]
-
-    window = sg.Window(title="ytDownloader", layout=layout, margins=(300, 200))
-
-    layout = 1
-
-    while True:
-        event, values = window.read()
-        print(event, values)
-        if event == None or "Exit" in event:
-            break
-        
-        if 'Back' in event:
-            window['-convertMP4-'].update(visible=False)
-            window['-downloadYTVideo-'].update(visible=False)
-            window['-home-'].update(visible=True)
-
-        if event == 'convertMP4':
-            window['-home-'].update(visible=False)
-            window['-convertMP4-'].update(visible=True) 
-        
-        if values['_FILEBROWSE_'] != '':
-            window['-convertToMP3-'].update(disabled=False)
-            window['-convertToWAV-'].update(disabled=False)
-
-        if event == '-convertToMP3-' and values['-FILEPATH-'] != '':
-            # NEED TO CHANGE __INIT__ to handle the FILE path, find nameMP4 and name
-            MenuNav().convert_existing_mp4(file_path=values['-FILEPATH-'], audio_type='.mp3')
-
-        if event == '-convertToWAV-' and values['-FILEPATH-'] != '':
-            MenuNav().convert_existing_mp4(file_path=values['-FILEPATH-'], audio_type='.wav')
-
-        if event == 'downloadYTVideo':
-            window['-home-'].update(visible=False)
-            window['-downloadYTVideo-'].update(visible=True)
-
-        if values['_CUSTOMTIMESTAMPSYES_']:
-            window['timeStamps'].update()
-            window['timeStampsStart'].update(disabled=False)
-            window['timeStampsEnd'].update(disabled=False)
-            # disable convert until start and end is filled
-
-        if values['_CUSTOMTIMESTAMPSNO_']:
-            window['timeStamps'].update()
-            window['timeStampsStart'].update(disabled=True)
-            window['timeStampsEnd'].update(disabled=True)
-
-        # maybe find an input field with only numbers
-        if '' not in (values['URL'], values['fileName'], values['timeStampsStart'], values['timeStampsEnd']) and values['_CUSTOMTIMESTAMPSYES_']:
+        if '' not in (URL, file_name, start, end) and custom_yes:
             try:
-                if int(values['timeStampsStart']) < int(values['timeStampsEnd']):
-                    window['Convert'].update(disabled=False)
+                if int(start) < int(end):
+                    return False
                 else:
-                    window['Convert'].update(disabled=True)
+                    return True
             except ValueError:
-                window['Convert'].update(disabled=True)
+                return True
 
-        elif '' not in (values['URL'], values['fileName']) and values['_CUSTOMTIMESTAMPSNO_']:
-            window['Convert'].update(disabled=False)
+        elif '' not in (URL, file_name) and custom_no:
+            return False
 
         else:
-            window['Convert'].update(disabled=True)
-            
+            return True
 
-        if event == 'Convert':
+
+    def create_window(self):
+        buttonSize = (23,2)
+        doubleButtonSize = (48,2)
+        inputFieldSize1 = 30
+        inputFieldSize2 = 5
+
+        sg.set_options(font=("Courier New", 12))
+        # sg.theme('SandyBeach')
+        sg.ChangeLookAndFeel('Dark')
+        # sg.theme_background_color('#FFFFFF')
+
+        layout1 = [
+            [
+                sg.Text("What would you like to do?")
+            ],
+            [
+                sg.Button("Convert MP4 to Audio", key='convertMP4', s=buttonSize),
+                sg.Button("Download a YouTube Video", key='downloadYTVideo', s=buttonSize)
+            ],
+            [
+                sg.Button("Exit", key='Exit', s=doubleButtonSize)
+            ]
+        ]
+
+        layout2 = [
+            [
+                sg.Text("Select a File to Convert: "),
+                sg.Input(key='_FILEBROWSE_', enable_events=True, size=inputFieldSize1, disabled=True),
+                sg.T(),
+                sg.FileBrowse(target='_FILEBROWSE_', key='-FILEPATH-', file_types=(("MP4 Files", "*.mp4")))
+            ],
+            [
+                sg.Button("Convert to MP3", key='-convertToMP3-', s=buttonSize, disabled=True),
+                sg.Button("Convert to WAV", key='-convertToWAV-', s=buttonSize, disabled=True)
+            ],
+            [
+                sg.Button("Back", key='Back', s=buttonSize),
+                sg.Button("Exit", key='Exit', s=buttonSize)
+            ]
+        ]
+
+        col3_1_1 = [
+            [sg.Text("Video URL   >>>")],
+            [sg.Text("File Name   >>>")]
+        ]
+
+        col3_1_2 = [
+            [
+                sg.Input(size=inputFieldSize1, key='URL', enable_events=True)
+            ],
+            [
+                sg.Input(size=inputFieldSize1, key='fileName', enable_events=True)
+            ]
+        ]
+
+        col3_2_1 = [
+            [sg.Text("Audio Only? ")],
+            [sg.Text("File Format: ")],
+            [sg.Text("Custom Timestamps? ")],
+            [sg.Text("Times: ", key='timeStamps')]
+        ]
+
+        col3_2_2 = [
+            [
+                sg.Column([
+                    [sg.Radio("Yes", 'audioOnly', key='audioOnlyTrue', enable_events=True)],
+                    [sg.Radio(".mp3", group_id="fileFormat", key='fileFormat1', default=True)],
+                    [sg.Radio("Yes", 'customTimestamps', key="_CUSTOMTIMESTAMPSYES_", enable_events=True)],
+                    [sg.Input("", disabled=True, key='timeStampsStart', size=inputFieldSize2, enable_events=True)]
+                ]),
+                sg.Column([
+                    [sg.Radio("No", 'audioOnly', key='audioOnlyFalse', default=True, enable_events=True)],
+                    [sg.Radio(".wav", group_id="fileFormat", key='fileFormat2', default=False)],
+                    [sg.Radio("No", 'customTimestamps', key='_CUSTOMTIMESTAMPSNO_', enable_events=True, default=True)],
+                    [sg.Input("", disabled=True, key='timeStampsEnd', size=inputFieldSize2, enable_events=True)]
+                ])
+            ]
+        ]
+
+        layout3 = [
+            [sg.Column([
+                [
+                    sg.Column(col3_1_1),
+                    sg.Column(col3_1_2)
+                ],
+                [
+                    sg.Column(col3_2_1),
+                    sg.Column(col3_2_2)
+                ]
+            ])],
+            [sg.Column([[
+                sg.Button("Back", key='Back', s=buttonSize),
+                sg.Button("Exit", key='Exit', s=buttonSize)
+            ]])],
+            [sg.Button("Convert", key='Convert', disabled=True, s=doubleButtonSize)],
+            [sg.Multiline("Downloaded Successfully", key='successMSG', s=doubleButtonSize, background_color='green', text_color='white', justification='c', visible=False)]
+        ]
+
+        layout = [
+            [
+                sg.Column(layout1, key='-home-', element_justification='center'), 
+                sg.Column(layout2, visible=False, key='-convertMP4-', element_justification='center'),
+                sg.Column(layout3, visible=False, key='-downloadYTVideo-', element_justification='center')
+            ]
+        ]
+
+        window = sg.Window(title="ytDownloader", layout=layout, margins=(300, 200), resizable=True, finalize=True)
+
+        layout = 1
+
+        while True:
+            event, values = window.read()
+            print(event, values)
+            if event == None or "Exit" in event:
+                break
+
+            for key in ['fileFormat1', 'fileFormat2']:
+                window[key].update(disabled=(not values['audioOnlyTrue']))
+                window[key].update(disabled=(values['audioOnlyFalse']))
+                
+
+            if 'Back' in event:
+                window['-convertMP4-'].update(visible=False)
+                window['-downloadYTVideo-'].update(visible=False)
+                window['-home-'].update(visible=True)
+
+            if event == 'convertMP4':
+                window['-home-'].update(visible=False)
+                window['-convertMP4-'].update(visible=True) 
             
-            # check if they want custom time stamps
+            if values['_FILEBROWSE_'] != '':
+                window['-convertToMP3-'].update(disabled=False)
+                window['-convertToWAV-'].update(disabled=False)
+
+            if event == '-convertToMP3-' and values['-FILEPATH-'] != '':
+                MenuNav().convert_existing_mp4(file_path=values['-FILEPATH-'], audio_type='.mp3')
+
+            if event == '-convertToWAV-' and values['-FILEPATH-'] != '':
+                MenuNav().convert_existing_mp4(file_path=values['-FILEPATH-'], audio_type='.wav')
+
+            if event == 'downloadYTVideo':
+                window['-home-'].update(visible=False)
+                window['-downloadYTVideo-'].update(visible=True)
+
             if values['_CUSTOMTIMESTAMPSYES_']:
-                MenuNav().download_yt_etc(link=values['URL'], name=values['fileName'], audio_only=values['audioOnly'], file_format=values['fileFormat'], start=values['timeStampsStart'], end=values['timeStampsEnd'])
+                window['timeStamps'].update()
+                window['timeStampsStart'].update(disabled=False)
+                window['timeStampsEnd'].update(disabled=False)
+            # disable convert until start and end is filled
 
-            else: 
-                MenuNav().download_yt_etc(link=values['URL'], name=values['fileName'], audio_only=values['audioOnly'], file_format=values['fileFormat'])
+            if values['_CUSTOMTIMESTAMPSNO_']:
+                window['timeStamps'].update()
+                window['timeStampsStart'].update(disabled=True)
+                window['timeStampsEnd'].update(disabled=True)
+
+            # check if the input is an integer and remove the non-integer values
+            if event == 'timeStampsStart' and values['timeStampsStart'] and values['timeStampsStart'][-1] not in ('0123456789'):
+                window['timeStampsStart'].update(values['timeStampsStart'][:-1])
+
+            if event == 'timeStampsEnd' and values['timeStampsEnd'] and values['timeStampsEnd'][-1] not in ('0123456789'):
+                window['timeStampsEnd'].update(values['timeStampsEnd'][:-1])
+
+            window['Convert'].update(disabled=self.convert_button(values['URL'], values['fileName'], values['timeStampsStart'], values['timeStampsEnd'], values['_CUSTOMTIMESTAMPSYES_'], values['_CUSTOMTIMESTAMPSNO_']))
+
+            for key in ['_CUSTOMTIMESTAMPSYES_', '_CUSTOMTIMESTAMPSNO_']:
+                if values['URL'] != '':
+                    try:
+                        window['_CUSTOMTIMESTAMPSYES_'].update(disabled=link_validation(values['URL']).is_clip())
+                        window['_CUSTOMTIMESTAMPSNO_'].update(disabled=link_validation(values['URL']).is_clip())
+                    except:
+                        pass
+
+            if event == 'Convert':
+                
+                # check if they want custom time stamps
+                if values['_CUSTOMTIMESTAMPSYES_']:
+                    window['successMSG'].update(background_color='blue')
+                    success = self.download_yt_etc(link=values['URL'], name=values['fileName'], audio_only=values['audioOnlyTrue'], file_format=values['fileFormat1'], start=values['timeStampsStart'], end=values['timeStampsEnd'])
+
+                else: 
+                    window['successMSG'].update(background_color='blue')
+                    success = self.download_yt_etc(link=values['URL'], name=values['fileName'], audio_only=values['audioOnlyTrue'], file_format=values['fileFormat1'])
+
+                if success:
+                    window['successMSG'].update(visible=True, background_color='green')
 
 
-    window.close()
+        window.close()
 
 
 if __name__ == '__main__':
-    create_window()
-    # MenuNav().question_1()
+    MenuNav().create_window()
