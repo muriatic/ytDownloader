@@ -1,5 +1,7 @@
 @echo off
 
+mkdir .venv
+
 copy yt_downloader.py .venv
 
 echo yt_downloader.py copied
@@ -47,7 +49,7 @@ pip install -r requirements.txt
 
 call VirtualytDownloader\Scripts\activate.bat
 
-pyinstaller ytDownloader.py -F --icon=icon.ico
+pyinstaller yt_Downloader.py -F --icon=icon.ico
 
 call VirtualytDownloader\Scripts\deactivate.bat
 
@@ -67,9 +69,9 @@ echo dependencies.md deleted
 if exist .\build rmdir .\build /S /Q
 if exist .\VirtualytDownloader rmdir .\VirtualytDownloader /S /Q
 if exist .\VirtualytDownloader rmdir .\VirtualytDownloader /S /Q
-if exist ytDownloader.spec del ytDownloader.spec /S /Q
+if exist yt_Downloader.spec del yt_Downloader.spec /S /Q
 
-for /f "delims=" %%a in ('powershell .\SHA256CheckSum.ps1') do Set "$Value=%%a"
+for /f "delims=" %%a in ('powershell -command "(Get-FileHash 'dist\yt_Downloader.exe' -Algorithm SHA256).hash"') do Set "$Value=%%a"
 
 echo;Checksum Created
 
@@ -99,7 +101,7 @@ Set out="."
     Echo;%$Value%
 ) >> %out%\README.md
 
- REM delete the backup since it is unnecessary
- del README.md.bak
+REM delete the backup since it is unnecessary
+del README.md.bak
 
 Exit /B
