@@ -13,16 +13,6 @@ from moviepy import editor as moviepy
 import requests
 import eel
 
-# start eel local web server 
-eel.init("webFiles")
-
-# starts chrome
-# can add params like port, host, mode, size, 
-eel.start("index.html")
-
-
-sys.exit(-1)
-
 ### END OF IMPORT ###
 
 class InvalidLinkException(Exception):
@@ -267,6 +257,28 @@ class MenuNav():
 
         return downloaded
 
+
+# start eel local web server 
+eel.init("web")
+
+@eel.expose
+def partial_validation(URL):
+    if URL != '':
+        try:
+            link_validation(URL).partial_validation()
+            return 0
+        except NonYoutubeLinkException:
+            return -2
+        except NonVideoLinkException:
+            return -1
+    else:
+        return 1
+
+# starts chrome
+# can add params like port, host, mode, size, 
+eel.start("index.html")
+
+sys.exit(-1)
 
 # if __name__ == '__main__':
 #     MenuNav()

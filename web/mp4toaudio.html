@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico?">
+
+        <title>ytDownloader</title>
+
+        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.css">
+        <link rel="stylesheet" href="assets/stylesheet.css">
+        <style>
+            body{
+                background: rgb(205, 205, 205);
+            }
+        </style>
+    </head>
+
+    <body class="mp4toaudio">
+        <div class="container-fluid px-5 py-5" id="main-container">
+            <nav class="navbar navbar-expand-lg px-4 navbar-light" style="background-color: #e3f2fd";>
+              <a class="navbar-brand" href="index.html">
+                <img src="assets/images/iconDifferentBG.png" width="32" height="32" class="d-inline-block align-top" alt="">
+                ytDownloader
+              </a>
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link" id="index.html" href="index.html">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="mp4toaudio.html" href="mp4toaudio.html">Convert MP4 to Audio</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="downloadytvideo.html" href="downloadytvideo.html">Download a YouTube Video</a>
+                </li>
+              </ul>
+            </nav>
+            
+            <div class="container-fluid bg-white py-3 px-5">
+                <div class="text-center">
+                    <h1 class="display-1">Convert MP4 to Audio</h1>
+                    <p class="h4 text-muted">Supported File Types: MP3 and WAV</p>
+                </div>
+                <div>
+                    <label for="MP4FileSelect" class="form-label display-6">Select an MP4 File to Convert</label>
+                    <input class="form-control form-control-lg" id="MP4FileSelect" type="file" accept=".mp4">
+                </div>
+                <hr>
+                <div class="btn-group d-flex">
+                    <button href="" class="btn btn-primary btn-lg w-100">Convert MP4 to Audio</button>
+                    <button href="" class="btn btn-primary btn-lg w-100">Download a YouTube Video</button>
+                </div>
+            </div>
+        </div>
+    
+        <script src="/eel.js" ></script>
+        <script src="assets/jquery/jquery-3.7.0.js"></script>
+        <script src="assets/bootstrap/js/bootstrap.js"></script>
+        <script src="assets/script.js"></script>
+        <script>
+            setActivePage();
+        </script>
+    </body>
+</html>
