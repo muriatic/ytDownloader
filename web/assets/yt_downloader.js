@@ -52,59 +52,6 @@ document.getElementById("fileName").addEventListener("input", function() {
 
 // is there a fileName?
 
-var fields = "#videoURL, #fileName, #custom_start, #custom_end, #custom_timestamps_question";
-var req_fields = "#videoURL, #fileName";
-var optional_fields = "#custom_start, #custom_end"
-
-$(fields).on('change', function() {
-    var test = allFilled()
-    console.log(test)
-    // .then(enableConvert => {
-    //     convertEnabled= enableConvert;
-    //     console.log(convertEnabled)
-    //     if (convertEnabled) {
-    //         $('#convert').removeClass('disabled');
-    //     } else {
-    //         $('#convert').addClass('disabled');
-    //     }
-    // });
-});
-
-    // are customtimestamps filled in and start is less than end
-
-function allFilled() {
-    var filled = true;
-    var optional_filled = true;
-    var total_filled = true;
-    
-    $(req_fields).each(function() {
-        if ($(this).val() == '') {
-            filled = false;
-        }
-    });
-    
-    if (customtimestamps) {
-        $(optional_fields).each(function() {
-            if ($(this).val() == '') {
-                optional_filled = false;
-            }
-        });
-    }
-    
-    var valid_URL = false;
-
-    loc_partial_validation()
-    .then(text => {
-        valid_URL = text;
-
-        if (optional_filled == false || filled == false || valid_URL == false) {
-            var total_filled = false;
-        }
-    });
-
-    console.log(total_filled)
-    return total_filled
-}
 
 document.getElementById("custom_start").addEventListener("keyup", compareTimes);
 document.getElementById("custom_end").addEventListener("keyup", compareTimes);
@@ -125,11 +72,67 @@ function compareTimes() {
     }       
 }
 
+var fields = "#videoURL, #fileName, #custom_start, #custom_end, #custom_timestamps_question";
+var req_fields = "#videoURL, #fileName";
+var optional_fields = "#custom_start, #custom_end"
+
+$(fields).on('change', function() {
+    var test = allFilled()
+    // .then(enableConvert => {
+    //     convertEnabled= enableConvert;
+    //     console.log(convertEnabled)
+    //     if (convertEnabled) {
+    //         $('#convert').removeClass('disabled');
+    //     } else {
+    //         $('#convert').addClass('disabled');
+    //     }
+    // });
+});
+// are customtimestamps filled in and start is less than end
+
+function allFilled() {
+
+    let valid_URL
+    loc_partial_validation()
+    .then(result => {
+        valid_URL = result;
+        console.log(valid_URL);
+    });
+
+    console.log(valid_URL);
+
+    var filled = true;
+    var optional_filled = true;
+    var total_filled = true;
+    
+    $(req_fields).each(function() {
+        if ($(this).val() == '') {
+            filled = false;
+        }
+    });
+    
+    if (customtimestamps) {
+        $(optional_fields).each(function() {
+            if ($(this).val() == '') {
+                optional_filled = false;
+            }
+        });
+    }
+
+    
+
+    if (optional_filled == false || filled == false || valid_URL == false) {
+        var total_filled = false;
+    }
+
+    console.log(valid_URL)
+    return total_filled
+}
 
 // enable the button if conditions are met
 // is video URL valid
 
-document.getElementById("videoURL").addEventListener("keyup", loc_partial_validation)
+// document.getElementById("videoURL").addEventListener("keyup", loc_partial_validation)
 
 async function loc_partial_validation () {
     url = document.getElementById("videoURL").value;
@@ -138,28 +141,28 @@ async function loc_partial_validation () {
 
     var message;
 
-    var valid_URL = false;
+    var valid_URL;
 
     switch(log){
         case -2:
             message = 'NonYoutubeLinkException';
             valid_URL = false;
-            return valid_URL;
+            break;
 
         case -1:
             message = 'NonVideoLinkException';
             valid_URL = false;
-            return valid_URL;
+            break;
 
         case 0:
             message = 'Valid Link'
             valid_URL = true;
-            return valid_URL;
+            break;
 
         case 1:
             message = 'Unhandled Link Exception'
             valid_URL = false;
-            return valid_URL;
+            break;
     }
 
     return valid_URL;
