@@ -77,7 +77,8 @@ var req_fields = "#videoURL, #fileName";
 var optional_fields = "#custom_start, #custom_end"
 
 $(fields).on('change', function() {
-    var test = allFilled()
+    allFilled()
+    // console.log(test)
     // .then(enableConvert => {
     //     convertEnabled= enableConvert;
     //     console.log(convertEnabled)
@@ -91,42 +92,43 @@ $(fields).on('change', function() {
 // are customtimestamps filled in and start is less than end
 
 function allFilled() {
-
-    let valid_URL
-    loc_partial_validation()
+    partial_validation()
     .then(result => {
         valid_URL = result;
         console.log(valid_URL);
-    });
-
-    console.log(valid_URL);
-
-    var filled = true;
-    var optional_filled = true;
-    var total_filled = true;
-    
-    $(req_fields).each(function() {
-        if ($(this).val() == '') {
-            filled = false;
-        }
-    });
-    
-    if (customtimestamps) {
-        $(optional_fields).each(function() {
+        var filled = true;
+        var optional_filled = true;
+        var total_filled = true;
+        
+        $(req_fields).each(function() {
             if ($(this).val() == '') {
-                optional_filled = false;
+                filled = false;
             }
         });
-    }
-
+        
+        if (customtimestamps) {
+            $(optional_fields).each(function() {
+                if ($(this).val() == '') {
+                    optional_filled = false;
+                }
+            });
+        }
     
+        
+    
+        if (optional_filled == false || filled == false || valid_URL == false) {
+            var total_filled = false;
+        }
+    
+        console.log(valid_URL)
+        
+        if (total_filled) {
+            $('#convert').removeClass('disabled');
+        } else {
+            $('#convert').addClass('disabled');
+        }
 
-    if (optional_filled == false || filled == false || valid_URL == false) {
-        var total_filled = false;
-    }
-
-    console.log(valid_URL)
-    return total_filled
+    });
 }
 
 // enable the button if conditions are met
@@ -134,7 +136,7 @@ function allFilled() {
 
 // document.getElementById("videoURL").addEventListener("keyup", loc_partial_validation)
 
-async function loc_partial_validation () {
+async function partial_validation () {
     url = document.getElementById("videoURL").value;
 
     var log = await eel.partial_validation(url)();
