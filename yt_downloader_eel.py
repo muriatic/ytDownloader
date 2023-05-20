@@ -67,16 +67,32 @@ class link_validation():
 
         netloc = parsed_url.netloc
         path = parsed_url.path
+        scheme = parsed_url.scheme
 
-        #check if it is a YouTube link
-        if netloc not in ("www.youtube.com", "youtu.be", "youtube.com"):
+        check_field1 = netloc
+        check_field2 = path
+
+        if scheme == '':
+            try:
+                check_field1, check_field2 = path.split('/')
+                check_field2 = '/' + check_field2
+            except ValueError:
+                check_field1 = path
+                check_field2 = ''
+        
+        # check if it is a YouTube link
+        if check_field1 not in ("www.youtube.com", "youtu.be", "youtube.com"):
             raise NonYoutubeLinkException(f"link {self.link} is not a YouTube address")
 
         # check if it is a traditional video
         # videos path start with /watch or nothing if the netloc is youtu.be
-        if not (path.startswith("/watch") or path.startswith("/shorts")) and netloc != "youtu.be":
+        elif not (check_field2.startswith("/watch") or check_field2.startswith("/shorts") or check_field2.startswith("/clip")) and check_field1 != "youtu.be":
             raise NonVideoLinkException(f"{self.link} is a non-video YouTube link")
         
+        elif check_field1 == "youtu.be" and check_field2 == '':
+            raise NonVideoLinkException(f"{self.link} is a non-video YouTube link")
+
+
 
     def full_link_validation(self) -> None:
         request = requests.get(self.link, timeout=3)
@@ -163,7 +179,7 @@ class VideoData():
         self.original_file_path = original_file_path
 
 
-    def download_video(self, link) -> None:
+    def download_video(self, link) -> int:
         """Download the video"""
         download_link = link
 
@@ -172,7 +188,7 @@ class VideoData():
         video = youtube.streams.get_highest_resolution()
         video.download(filename=self.name_mp4)
 
-        return True
+        return 0
 
 
     def convert_mp4(self, audio_type, clip=False) -> None:
@@ -227,7 +243,6 @@ class MenuNav():
 
         # maybe have this activate/deactivate convert button with a try, except block
         clip = link_validation(link).is_clip()
-        link_validation(link).full_link_validation()
         audio_type = '.mp3' if file_format else '.wav'
 
         nameMP4 = name + '.mp4'
@@ -273,6 +288,21 @@ def partial_validation(URL):
             return -1
     else:
         return 1
+
+@eel.expose
+def download_video(url, fileName, audio_only, fileFormat, start, end) -> int:
+    try:
+        link_validation(url).full_link_validation()
+    except VideoUnavailableException:
+        return -1
+    except InvalidLinkException:
+        return -2
+    
+    if 'null' in (start, end):
+        start, end = None
+
+    return MenuNav().download_yt_etc(url, fileName, audio_only, fileFormat, start, end)
+    
 
 # starts chrome
 # can add params like port, host, mode, size, 

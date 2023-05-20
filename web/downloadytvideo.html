@@ -52,12 +52,15 @@
                                     <label for="videoURL" class="display-6">Video URL</label>
                                     <input type="text" class="form-control" id="videoURL" aria-describedby="videoURLHelp" placeholder="Video URL" required>
                                     <small id="videoURLHelp" class="form-text text-muted">Supported Type: YouTube Videos, YouTube Shorts, YouTube Clip</small>
+                                    <br>
+                                    <span id="error1" style="color: red" class="d-none">error1</span>
+                                    <br>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="fileName" class="display-6">File Name</label>
                                     <input type="text" class="form-control" id="fileName" aria-describedby="fileNameHelp" placeholder="File Name">
-                                    <span id="error1" style="color: red" class="d-none">error1</span>
+                                    <span id="error2" style="color: red" class="d-none">error2</span>
                                     <br>
                                     <!-- <small id="fileNameHelp" class="form-text text-muted">Here's a little description or help statement</small> -->
                                 </div>
@@ -66,7 +69,7 @@
                                 <label for="audio_only_question" class="display-6">Audio Only</label>
                                 <div class="btn-group btn-group-toggle" id="audio_only_question" data-toggle="buttons">
                                     <label class="btn btn-secondary" onclick="showFileType()">
-                                        <input type="radio" name="audio_only" class="d-none" id="True" autocomplete="off"> Yes
+                                        <input type="radio" name="audio_only" class="d-none" id="audioOnlyTrue" autocomplete="off"> Yes
                                     </label>
                                     <label class="btn btn-secondary active" onclick="hideFileType()">
                                         <input type="radio" name="audio_only" class="d-none" id="False" autocomplete="off" checked> No
@@ -89,7 +92,7 @@
                                 <label for="custom_timestamps_question" class="display-6">Custom Timestamps</label>
                                 <div class="btn-group btn-group-toggle" id="custom_timestamps_question" data-toggle="buttons">
                                     <label class="btn btn-secondary" onclick="showStartEndQuestion()">
-                                        <input type="radio" name="custom_timestamps" class="d-none" id="True" autocomplete="off"> Yes
+                                        <input type="radio" name="custom_timestamps" class="d-none" id="customTimeStamps" autocomplete="off"> Yes
                                     </label>
                                     <label class="btn btn-secondary active" onclick="hideStartEndQuestion()">
                                         <input type="radio" name="custom_timestamps" class="d-none" id="False" autocomplete="off" checked> No
@@ -108,7 +111,16 @@
                                     <span id="invalidTimes" style="color: red" class="d-none">Start Time Must Be Before the End Time</span>
                                 </div>
                             </div>
-                            <button id="convert" class="btn btn-primary btn-lg w-100 disabled">Convert</button>
+                            <div>
+                                <button id="convert" class="btn btn-primary btn-lg w-100 disabled" onclick="formSubmission()">Convert</button>
+                                <span id="submissionError" style="color: red" class="d-none">Start Time Must Be Before the End Time</span>
+                                <br>
+                                <br>
+                                <div id="successMessage" class="alert alert-success d-none" role="alert">
+                                    Success Message
+                                </div>
+                                <br>
+                            </div>
                             <!-- <input type="submit" id="convert" disabled="disabled"> -->
                         </div>
                     <!-- </form> -->

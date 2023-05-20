@@ -24,8 +24,8 @@ $(function () {
         //Validate TextBox value against the Regex.
         var isValid = regex.test(String.fromCharCode(keyCode));
         if (!isValid) {
-            $("#error1").html(key + " is not allowed");
-            $("#error1").removeClass('d-none');
+            $("#error2").html(key + " is not allowed");
+            $("#error2").removeClass('d-none');
             invalid_key = true;
         }
         
@@ -40,12 +40,11 @@ const isEmpty = str => !str.trim().length;
 document.getElementById("fileName").addEventListener("input", function() {
     if (isEmpty(this.value)) {
 
-        $("#error1").html("A File Name is Required");
-        $("#error1").removeClass('d-none')
+        $("#error2").html("A File Name is Required");
+        $("#error2").removeClass('d-none')
         no_file_name = true;
     } else {
-        $("#error1").addClass('d-none')
-        $("#error1").addClass('d-none')
+        $("#error2").addClass('d-none')
         no_file_name = false;
     }
 });
@@ -95,7 +94,6 @@ function allFilled() {
     partial_validation()
     .then(result => {
         valid_URL = result;
-        console.log(valid_URL);
         var filled = true;
         var optional_filled = true;
         var total_filled = true;
@@ -119,11 +117,13 @@ function allFilled() {
         if (optional_filled == false || filled == false || valid_URL == false) {
             var total_filled = false;
         }
-    
-        console.log(valid_URL)
         
         if (total_filled) {
             $('#convert').removeClass('disabled');
+            // code to remove all error codes
+            $('#error1').addClass('d-none')
+            $('#error2').addClass('d-none')
+            $('#submissionError').addClass('d-none')
         } else {
             $('#convert').addClass('disabled');
         }
@@ -139,6 +139,10 @@ function allFilled() {
 async function partial_validation () {
     url = document.getElementById("videoURL").value;
 
+    if (url == ''){
+        return 
+    }
+
     var log = await eel.partial_validation(url)();
 
     var message;
@@ -149,23 +153,83 @@ async function partial_validation () {
         case -2:
             message = 'NonYoutubeLinkException';
             valid_URL = false;
+            $("#error1").html("Only YouTube addresses are supported");
+            $("#error1").removeClass('d-none')
+        no_file_name = false;
             break;
 
         case -1:
             message = 'NonVideoLinkException';
             valid_URL = false;
+            $("#error1").html("Only YouTube Shorts, Clips, and Videos are supported");
+            $("#error1").removeClass('d-none')
             break;
 
         case 0:
             message = 'Valid Link'
             valid_URL = true;
+            $("#error1").addClass('d-none')
             break;
 
         case 1:
             message = 'Unhandled Link Exception'
             valid_URL = false;
+            $("#error1").html("Unhandled Link Exception, please report to Dev Team");
+            $("#error1").removeClass('d-none')
             break;
     }
 
     return valid_URL;
+}
+
+async function formSubmission() {
+    $("successMessage").addClass('d-none')
+
+    var url = document.getElementById("videoURL").value;
+    var fileName = document.getElementById("fileName").value;
+    
+    var audio_only = document.getElementById("audioOnlyTrue").checked;
+
+    var fileFormat = null;
+    if (audio_only) {
+        fileFormat =  document.getElementById("mp3").checked;
+    }
+
+
+    var customTimestamps = document.getElementById("customTimeStamps").checked;
+    
+    var start = null;
+    var end = null;
+
+    if (customTimestamps) {
+        start = document.getElementById("custom_start").value;
+        end = document.getElementById("custom_end").value;
+    }
+
+    var response_code = await eel.download_video(url, fileName, audio_only, fileFormat, start, end)();
+
+    console.log(response_code)
+
+    switch(response_code){
+        case -2:
+            $("#submissionError").html(`The following link: ${url} returned a Non 200 Status Code. Please try again`);
+            $("#submissionError").removeClass('d-none')
+            break;
+        case -1:
+            $("#submissionError").html(`The YouTube video at: ${url} is unavailable. Check that your link is correct`);
+            $("#submissionError").removeClass('d-none')
+            break;
+        case 0:
+            $("#submissionError").addClass('d-none')
+            $("#successMessage").html(`File: ${fileName} successfully downloaded!`)
+            $("#successMessage").removeClass('d-none')
+            break;
+        case 1:
+            $("#submissionError").html(`Unhandled download exception. Please log what you did submitted and send to the dev team`);
+            $("#submissionError").removeClass('d-none')
+            break;
+    }
+
+
+
 }
