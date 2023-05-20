@@ -12,6 +12,8 @@ from pytube import YouTube
 from moviepy import editor as moviepy
 import requests
 import eel
+from tkinter import Tk
+from tkinter import filedialog
 
 ### END OF IMPORT ###
 
@@ -230,7 +232,9 @@ class MenuNav():
     def convert_existing_mp4(self, file_path, audio_type) -> None:
         """File Name"""
         # split the total path into path and file 
-        original_file_path, nameMP4 = file_path.rsplit('/', 1)
+        # originally '/' which is how python gets the file location but now it gets the file path with '\' 
+        # so we search for that instead
+        original_file_path, nameMP4 = file_path.rsplit('\\', 1)
 
         functions = VideoData(nameMP4, original_file_path)
 
@@ -302,7 +306,26 @@ def download_video(url, fileName, audio_only, fileFormat, start, end) -> int:
         start, end = None
 
     return MenuNav().download_yt_etc(url, fileName, audio_only, fileFormat, start, end)
-    
+
+@eel.expose
+def getFilePath():
+    root = Tk()
+    root.withdraw()
+    root.wm_attributes('-topmost', 1)
+    file = filedialog.askopenfile(mode='r', filetypes=[('MP4 Files', '*.mp4')])
+    if file:
+        filepath = os.path.abspath(file.name)
+    return filepath
+
+@eel.expose
+def convertFile(file_path, audio_type):
+    print(file_path, audio_type)
+    MenuNav().convert_existing_mp4(file_path, audio_type)
+    return 0
+
+    # try:
+    # except:
+    #     return -1
 
 # starts chrome
 # can add params like port, host, mode, size, 

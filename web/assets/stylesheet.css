@@ -13,3 +13,45 @@ input[type=number] {
 body{
     background: rgb(205, 205, 205);
 }
+
+.my-custom-button {
+  display: inline-flex;
+  height: 50px;
+  padding: 0;
+  /* background: #9FA6B2 */
+  background: #f8f9fa;
+  /* border: none; */
+  border-color: #dee2e6;
+  outline: none;
+  border-radius: 5px;
+  overflow: hidden;
+  font-family: Arial;
+  font-size: 20px;
+  font-weight: 500;
+  width: 100%;
+}
+
+.my-custom-button:hover {
+  background: #e9ecef
+}
+
+.button__text {
+  display: inline-flex;
+  align-items: center;
+  width: 8%;
+  height: 100%;
+  text-align: center;
+}
+
+.button__fileName {
+  background-color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 15px;
+  height: 100%;
+  width: 92%;
+}
+
+/* .my-custom-button:active {
+  background: #B8B8B8
+} */

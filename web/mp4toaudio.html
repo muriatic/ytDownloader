@@ -8,9 +8,12 @@
         
         <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico?">
 
-        <title>ytDownloader</title>
 
+        <title>ytDownloader</title>
+        <!-- bootstrap stylesheet-->
         <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.css">
+
+        <!-- my stylesheet-->
         <link rel="stylesheet" href="assets/stylesheet.css">
         <style>
             body{
@@ -48,10 +51,28 @@
                     <label for="MP4FileSelect" class="form-label display-6">Select an MP4 File to Convert</label>
                     <input class="form-control form-control-lg" id="MP4FileSelect" type="file" accept=".mp4">
                 </div>
+
+
+                <button type="button" class="my-custom-button">
+                  <span class="button__text">Choose File</span>
+                  <span class="button__fileName">No File Selected</span>
+                </button>
+
+                <!-- <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <button class="btn btn-lg btn-light" type="button" onclick="getFolder()">Choose File</button>
+                  </div>
+                  <span id="fileName" class="form-control" aria-label="something" disabled>No File Chosen</span>
+                </div> -->
+                <!-- <a href="#" onclick="getFolder()">GetFolder</a><span id="fileName"></span> -->
                 <hr>
                 <div class="btn-group d-flex">
-                    <button href="" class="btn btn-primary btn-lg w-100">Convert MP4 to Audio</button>
-                    <button href="" class="btn btn-primary btn-lg w-100">Download a YouTube Video</button>
+                    <button href="" class="btn btn-primary btn-lg w-100" onclick="convertToMP3()">Convert to MP3</button>
+                    <button href="" class="btn btn-primary btn-lg w-100" onclick="convertToWAV()">Convert to WAV</button>
+                </div>
+                <br>
+                <div id="Message" class="alert d-none" role="alert">
+                    Success Message
                 </div>
             </div>
         </div>
@@ -60,6 +81,7 @@
         <script src="assets/jquery/jquery-3.7.0.js"></script>
         <script src="assets/bootstrap/js/bootstrap.js"></script>
         <script src="assets/script.js"></script>
+        <script src="assets/mp4toaudio.js"></script>
         <script>
             setActivePage();
         </script>
