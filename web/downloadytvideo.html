@@ -45,85 +45,81 @@
                 </div>
                 <hr>
                 <div class="container-fluid px-5">
-                    <!-- <form id="testName"> -->
+                    <div class="d-grid gap-5">
                         <div class="d-grid gap-5">
-                            <div class="d-grid gap-5">
-                                <div class="form-group">
-                                    <label for="videoURL" class="display-6">Video URL</label>
-                                    <input type="text" class="form-control" id="videoURL" aria-describedby="videoURLHelp" placeholder="Video URL" required>
-                                    <small id="videoURLHelp" class="form-text text-muted">Supported Type: YouTube Videos, YouTube Shorts, YouTube Clip</small>
-                                    <br>
-                                    <span id="error1" style="color: red" class="d-none">error1</span>
-                                    <br>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="fileName" class="display-6">File Name</label>
-                                    <input type="text" class="form-control" id="fileName" aria-describedby="fileNameHelp" placeholder="File Name">
-                                    <span id="error2" style="color: red" class="d-none">error2</span>
-                                    <br>
-                                    <!-- <small id="fileNameHelp" class="form-text text-muted">Here's a little description or help statement</small> -->
-                                </div>
-                            </div>
-                            <div class="d-grid gap-3">
-                                <label for="audio_only_question" class="display-6">Audio Only</label>
-                                <div class="btn-group btn-group-toggle" id="audio_only_question" data-toggle="buttons">
-                                    <label class="btn btn-secondary" onclick="showFileType()">
-                                        <input type="radio" name="audio_only" class="d-none" id="audioOnlyTrue" autocomplete="off"> Yes
-                                    </label>
-                                    <label class="btn btn-secondary active" onclick="hideFileType()">
-                                        <input type="radio" name="audio_only" class="d-none" id="False" autocomplete="off" checked> No
-                                    </label>
-                                </div>
-    
-                                <div id="file_type_div" class="d-none">
-                                    <label for="file_type_question" class="display-6">File Format</label>
-                                    <div class="btn-group btn-group-toggle w-100" id="file_type_question" data-toggle="buttons">
-                                        <label class="btn btn-secondary active">
-                                            <input type="radio" name="file_type" class="d-none" id="mp3" autocomplete="off" checked> .mp3
-                                        </label>
-                                        <label class="btn btn-secondary">
-                                            <input type="radio" name="file_type" class="d-none" id="wav" autocomplete="off"> .wav
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="d-grid gap-3">
-                                <label for="custom_timestamps_question" class="display-6">Custom Timestamps</label>
-                                <div class="btn-group btn-group-toggle" id="custom_timestamps_question" data-toggle="buttons">
-                                    <label class="btn btn-secondary" onclick="showStartEndQuestion()">
-                                        <input type="radio" name="custom_timestamps" class="d-none" id="customTimeStamps" autocomplete="off"> Yes
-                                    </label>
-                                    <label class="btn btn-secondary active" onclick="hideStartEndQuestion()">
-                                        <input type="radio" name="custom_timestamps" class="d-none" id="False" autocomplete="off" checked> No
-                                    </label>
-                                </div>
-    
-                                <div id="start_end_div" class="d-none">
-                                    <label for="times_question" class="display-6">Times</label>
-                                    <div class="input-group" id="times_question">
-                                        <input type="number" class="form-control" id="custom_start" placeholder="Start">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">-</span>
-                                        </div>
-                                        <input type="number" class="form-control" id="custom_end" placeholder="End">
-                                    </div>
-                                    <span id="invalidTimes" style="color: red" class="d-none">Start Time Must Be Before the End Time</span>
-                                </div>
-                            </div>
-                            <div>
-                                <button id="convert" class="btn btn-primary btn-lg w-100 disabled" onclick="formSubmission()">Convert</button>
-                                <span id="submissionError" style="color: red" class="d-none">Start Time Must Be Before the End Time</span>
+                            <div class="form-group">
+                                <label for="videoURL" class="display-6">Video URL</label>
+                                <input type="text" class="form-control" id="videoURL" aria-describedby="videoURLHelp" placeholder="Video URL" required>
+                                <small id="videoURLHelp" class="form-text text-muted">Supported Type: YouTube Videos, YouTube Shorts, YouTube Clip</small>
                                 <br>
-                                <br>
-                                <div id="successMessage" class="alert alert-success d-none" role="alert">
-                                    Success Message
-                                </div>
+                                <span id="error1" style="color: red" class="d-none">error1</span>
                                 <br>
                             </div>
-                            <!-- <input type="submit" id="convert" disabled="disabled"> -->
+                            
+                            <div class="form-group">
+                                <label for="fileName" class="display-6">File Name</label>
+                                <input type="text" class="form-control" id="fileName" aria-describedby="fileNameHelp" placeholder="File Name">
+                                <span id="error2" style="color: red" class="d-none">error2</span>
+                                <br>
+                            </div>
                         </div>
-                    <!-- </form> -->
+                        <div class="d-grid gap-3">
+                            <label for="audio_only_question" class="display-6">Audio Only</label>
+                            <div class="btn-group btn-group-toggle" id="audio_only_question" data-toggle="buttons">
+                                <label class="btn btn-secondary" onclick="showFileType()">
+                                    <input type="radio" name="audio_only" class="d-none" id="audioOnlyTrue" autocomplete="off"> Yes
+                                </label>
+                                <label class="btn btn-secondary active" onclick="hideFileType()">
+                                    <input type="radio" name="audio_only" class="d-none" id="False" autocomplete="off" checked> No
+                                </label>
+                            </div>
+
+                            <div id="file_type_div" class="d-none">
+                                <label for="file_type_question" class="display-6">File Format</label>
+                                <div class="btn-group btn-group-toggle w-100" id="file_type_question" data-toggle="buttons">
+                                    <label class="btn btn-secondary active">
+                                        <input type="radio" name="file_type" class="d-none" id="mp3" autocomplete="off" checked> .mp3
+                                    </label>
+                                    <label class="btn btn-secondary">
+                                        <input type="radio" name="file_type" class="d-none" id="wav" autocomplete="off"> .wav
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-3">
+                            <label for="custom_timestamps_question" class="display-6">Custom Timestamps</label>
+                            <div class="btn-group btn-group-toggle" id="custom_timestamps_question" data-toggle="buttons">
+                                <label class="btn btn-secondary" onclick="showStartEndQuestion()">
+                                    <input type="radio" name="custom_timestamps" class="d-none" id="customTimeStamps" autocomplete="off"> Yes
+                                </label>
+                                <label class="btn btn-secondary active" onclick="hideStartEndQuestion()">
+                                    <input type="radio" name="custom_timestamps" class="d-none" id="False" autocomplete="off" checked> No
+                                </label>
+                            </div>
+
+                            <div id="start_end_div" class="d-none">
+                                <label for="times_question" class="display-6">Times</label>
+                                <div class="input-group" id="times_question">
+                                    <input type="number" class="form-control" id="custom_start" placeholder="Start">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">-</span>
+                                    </div>
+                                    <input type="number" class="form-control" id="custom_end" placeholder="End">
+                                </div>
+                                <span id="invalidTimes" style="color: red" class="d-none">Start Time Must Be Before the End Time</span>
+                            </div>
+                        </div>
+                        <div>
+                            <button id="convert" class="btn btn-primary btn-lg w-100 disabled" onclick="formSubmission()">Convert</button>
+                            <span id="submissionError" style="color: red" class="d-none">Start Time Must Be Before the End Time</span>
+                            <br>
+                            <br>
+                            <div id="successMessage" class="alert alert-success d-none" role="alert">
+                                Success Message
+                            </div>
+                            <br>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
