@@ -14,6 +14,10 @@ copy dependencies.md .venv
 
 echo dependencies.md copied
 
+robocopy web .venv/web /E 
+
+echo web copied
+
 cd .venv
 
 Rem create requirement.txt file
@@ -45,11 +49,12 @@ echo;requirements.txt created
 python -m venv VirtualytDownloader
 
 @echo on
-pip install -r requirements.txt
 
 call VirtualytDownloader\Scripts\activate.bat
 
-pyinstaller yt_Downloader.py -F --icon=icon.ico
+pip install -r requirements.txt
+
+python -m eel yt_Downloader.py web -F --icon=icon.ico --noconsole
 
 call VirtualytDownloader\Scripts\deactivate.bat
 
@@ -68,7 +73,7 @@ echo dependencies.md deleted
 
 if exist .\build rmdir .\build /S /Q
 if exist .\VirtualytDownloader rmdir .\VirtualytDownloader /S /Q
-if exist .\VirtualytDownloader rmdir .\VirtualytDownloader /S /Q
+if exist .\web rmdir .\web /S /Q
 if exist yt_Downloader.spec del yt_Downloader.spec /S /Q
 
 for /f "delims=" %%a in ('powershell -command "(Get-FileHash 'dist\yt_Downloader.exe' -Algorithm SHA256).hash"') do Set "$Value=%%a"
