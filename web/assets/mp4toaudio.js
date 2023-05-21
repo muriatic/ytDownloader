@@ -1,8 +1,13 @@
 async function getFolder() {
     var file_path = await eel.getFilePath()();
     if (file_path) {
-        console.log(file_path);
         $('#selectedFile').html(file_path)
+        $('#convertToMP3').removeClass('disabled')
+        $('#convertToWAV').removeClass('disabled')
+    }
+    else {
+        $('#convertToMP3').addClass('disabled')
+        $('#convertToWAV').addClass('disabled')
     }
 }
 
