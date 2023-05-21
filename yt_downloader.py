@@ -11,9 +11,14 @@ from selenium.common.exceptions import TimeoutException
 from pytube import YouTube
 from moviepy import editor as moviepy
 import requests
-import eel
 from tkinter import Tk
 from tkinter import filedialog
+
+f = open(os.devnull, 'w')
+sys.stdout = f
+sys.stderr = f
+
+import eel
 
 ### END OF IMPORT ###
 
