@@ -2,7 +2,7 @@ async function getFolder() {
     var file_path = await eel.getFilePath()();
     if (file_path) {
         console.log(file_path);
-        $('#fileName').html(file_path)
+        $('#selectedFile').html(file_path)
     }
 }
 

@@ -14,9 +14,44 @@ body{
     background: rgb(205, 205, 205);
 }
 
-input[type='file'] { 
-  font-size: 0; 
-} 
-::file-selector-button { 
-  font-size: initial; 
+.my-custom-button {
+  display: inline-flex;
+  height: 50px;
+  padding: 0;
+  background: #f8f9fa;
+  border-color: #dee2e6;
+  outline: none;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid #dee2e6;
 }
+
+.my-custom-button:hover {
+  background: #e9ecef
+}
+
+/* might want to add a fade delay like bootstrap*/
+.button__text {
+  border-radius: 0px;
+  border-right: 1px solid #dee2e6;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  height: 100%;
+  text-align: center;
+}
+
+.button__fileName {
+  border-radius: 0px;
+  background-color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 15px;
+  height: 100%;
+  width: 92%;
+}
+
+/* .my-custom-button:active {
+  background: #B8B8B8
+} */

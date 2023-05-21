@@ -49,9 +49,27 @@
                 </div>
                 <div>
                     <label for="MP4FileSelect" class="form-label display-6">Select an MP4 File to Convert</label>
-                    <input class="form-control form-control-lg" id="MP4FileSelect" title=" " type="file" onclick="getFolder(); return false">
+                    <input class="form-control form-control-lg" id="MP4FileSelect" type="file" onclick="console.log(`someShit`); return false">
                 </div>
 
+                <br>
+                <br>
+                
+                <button type="button" class="my-custom-button" onclick="getFolder()">
+                  <span class="button__text form-control-lg">Choose File</span>
+                  <span id="selectedFile" class="button__fileName form-control-lg">No file chosen</span>
+                </button>
+                
+                <br>
+                <br>
+
+                <!-- <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <button class="btn btn-lg btn-light" type="button" onclick="getFolder()">Choose File</button>
+                  </div>
+                  <span id="fileName" class="form-control" aria-label="something" disabled>No File Chosen</span>
+                </div> -->
+                <!-- <a href="#" onclick="getFolder()">GetFolder</a><span id="fileName"></span> -->
                 <hr>
                 <div class="btn-group d-flex">
                     <button href="" class="btn btn-primary btn-lg w-100" onclick="convertToMP3()">Convert to MP3</button>
@@ -63,9 +81,9 @@
                 </div>
             </div>
         </div>
-        
-        <script src="assets/jquery/jquery-3.7.0.js"></script>
+    
         <script src="/eel.js" ></script>
+        <script src="assets/jquery/jquery-3.7.0.js"></script>
         <script src="assets/bootstrap/js/bootstrap.js"></script>
         <script src="assets/script.js"></script>
         <script src="assets/mp4toaudio.js"></script>
