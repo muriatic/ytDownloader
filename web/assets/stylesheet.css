@@ -14,8 +14,12 @@ body{
     background: rgb(205, 205, 205);
 }
 
+* {
+  box-sizing:border-box;
+}
+
 .my-custom-button {
-  display: inline-flex;
+  display: flex;
   height: 50px;
   padding: 0;
   background: #f8f9fa;
@@ -28,7 +32,8 @@ body{
 }
 
 .my-custom-button:hover {
-  background: #e9ecef
+  background: #e9ecef;
+  transition: 0.3s;
 }
 
 /* might want to add a fade delay like bootstrap*/
@@ -45,11 +50,11 @@ body{
 .button__fileName {
   border-radius: 0px;
   background-color: #ffffff;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  padding: 0 15px;
+  /* padding: 0 15px; */
   height: 100%;
-  width: 92%;
+  width: 100%; /*calc(100% - 30px);*/
 }
 
 /* .my-custom-button:active {

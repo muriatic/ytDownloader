@@ -12,7 +12,7 @@ async function convertToMP3() {
     $("#Message").addClass('d-none')
     $("#Message").removeClass('alert-success')
     $("#Message").removeClass('alert-danger')
-    var filePath = document.getElementById("fileName").innerHTML;
+    var filePath = document.getElementById("selectedFile").innerHTML;
 
     var responseCode = await eel.convertFile(filePath, '.mp3')();
 
@@ -34,7 +34,7 @@ async function convertToWAV() {
     $("#Message").addClass('d-none')
     $("#Message").removeClass('alert-success')
     $("#Message").removeClass('alert-danger')
-    var filePath = document.getElementById("fileName").innerHTML;
+    var filePath = document.getElementById("selectedFile").innerHTML;
 
     var responseCode = await eel.convertFile(filePath, '.wav')();
 

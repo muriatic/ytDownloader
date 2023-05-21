@@ -48,19 +48,12 @@
                     <p class="h4 text-muted">Supported File Types: MP3 and WAV</p>
                 </div>
                 <div>
-                    <label for="MP4FileSelect" class="form-label display-6">Select an MP4 File to Convert</label>
-                    <input class="form-control form-control-lg" id="MP4FileSelect" type="file" onclick="console.log(`someShit`); return false">
-                </div>
-
-                <br>
-                <br>
-                
-                <button type="button" class="my-custom-button" onclick="getFolder()">
-                  <span class="button__text form-control-lg">Choose File</span>
-                  <span id="selectedFile" class="button__fileName form-control-lg">No file chosen</span>
-                </button>
-                
-                <br>
+                    <label for="fileSelectButton" class="form-label display-6">Select an MP4 File to Convert</label>                    
+                    <button id="fileSelectButton" type="button" class="my-custom-button" onclick="getFolder()">
+                      <span class="button__text form-control-lg">Choose File</span>
+                      <span id="selectedFile" class="button__fileName form-control-lg">No file chosen</span>
+                    </button>
+                  </div>
                 <br>
 
                 <!-- <div class="input-group mb-3">
