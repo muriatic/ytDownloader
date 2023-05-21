@@ -13,3 +13,10 @@ input[type=number] {
 body{
     background: rgb(205, 205, 205);
 }
+
+input[type='file'] { 
+  font-size: 0; 
+} 
+::file-selector-button { 
+  font-size: initial; 
+}
