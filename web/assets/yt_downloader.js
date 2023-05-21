@@ -77,16 +77,6 @@ var optional_fields = "#custom_start, #custom_end"
 
 $(fields).on('change', function() {
     allFilled()
-    // console.log(test)
-    // .then(enableConvert => {
-    //     convertEnabled= enableConvert;
-    //     console.log(convertEnabled)
-    //     if (convertEnabled) {
-    //         $('#convert').removeClass('disabled');
-    //     } else {
-    //         $('#convert').addClass('disabled');
-    //     }
-    // });
 });
 // are customtimestamps filled in and start is less than end
 
@@ -134,7 +124,6 @@ function allFilled() {
 // enable the button if conditions are met
 // is video URL valid
 
-// document.getElementById("videoURL").addEventListener("keyup", loc_partial_validation)
 
 async function partial_validation () {
     url = document.getElementById("videoURL").value;

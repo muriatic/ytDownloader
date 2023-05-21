@@ -250,7 +250,6 @@ class MenuNav():
     def download_yt_etc(self, link, name, audio_only, file_format, start=None, end=None) -> None:
         """File Name and Video URL"""
 
-        # maybe have this activate/deactivate convert button with a try, except block
         clip = link_validation(link).is_clip()
         audio_type = '.mp3' if file_format else '.wav'
 
