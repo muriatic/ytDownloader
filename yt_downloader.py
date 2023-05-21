@@ -11,6 +11,9 @@ from selenium.common.exceptions import TimeoutException
 from pytube import YouTube
 from moviepy import editor as moviepy
 import requests
+import eel
+from tkinter import Tk
+from tkinter import filedialog
 
 ### END OF IMPORT ###
 
@@ -23,7 +26,7 @@ class NonYoutubeLinkException(Exception):
 
 
 class VideoUnavailableException(Exception):
-    """Raised when the YouTube video is unavailable or it is a non-video link"""
+    """Raised when the YouTube video is unavailable"""
 
 
 class NoMP4FilesToConvertException(Exception):
@@ -32,6 +35,9 @@ class NoMP4FilesToConvertException(Exception):
 
 class EndBeforeStartException(Exception):
     """Raised when the end time is before the start time"""
+
+class NonVideoLinkException(Exception):
+    """Raised when a non-video youtube link is entered"""
 
 # error handling
 def show_exception_and_exit(exc_type, exc_value, tb_object):
@@ -43,37 +49,64 @@ def show_exception_and_exit(exc_type, exc_value, tb_object):
 sys.excepthook = show_exception_and_exit
 
 
-def link_validation(link) -> bool:
-    """Tests to make sure the link is valid and if successful, returns whether it is a clip"""
-    parsed_url = urlparse(link)
-    netloc = parsed_url.netloc
-    path = parsed_url.path
-    #check if it is a YouTube link
-    if netloc not in ("www.youtube.com", "youtu.be", "youtube.com"):
-        raise NonYoutubeLinkException(f"link {link} is not a YouTube address")
+class link_validation():
+    def __init__(self, link):
+        self.link = link
+        self.parsed_url = urlparse(link)
 
-    request = requests.get(link, timeout=3)
+    def is_clip(self) -> bool:
+        """Tests to make sure the link is valid and if successful, returns whether it is a clip"""        
+        # check if it is a clip
+        # clips path start with /clip
+        if self.parsed_url.path.startswith("/clip"):
+            return True
+        
+        return False
+    
 
-    # check if it is a clip
-    # clips path start with /clip
-    if parsed_url.path.startswith("/clip"):
-        return True
+    def partial_validation(self) -> None:
+        parsed_url = urlparse(self.link)
 
-    # check if it is a traditional video
-    # videos path start with /watch or nothing if the netloc is youtu.be
-    if not (path.startswith("/watch") or path.startswith("/shorts")) and netloc != "youtu.be":
-        raise VideoUnavailableException(f"{link} is a non-video YouTube link")
+        netloc = parsed_url.netloc
+        path = parsed_url.path
+        scheme = parsed_url.scheme
 
-    # check if the video is available
-    if "Video unavailable" in request.text:
-        raise VideoUnavailableException(
-            f"the YouTube video at: {link} is unavailable; please check that your link is correct")
+        check_field1 = netloc
+        check_field2 = path
 
-    # check to see if YouTube returns a good status code (200)
-    if request.status_code != 200:
-        raise InvalidLinkException(f"link {link} returned Status Code {request.status_code}")
+        if scheme == '':
+            try:
+                check_field1, check_field2 = path.split('/')
+                check_field2 = '/' + check_field2
+            except ValueError:
+                check_field1 = path
+                check_field2 = ''
+        
+        # check if it is a YouTube link
+        if check_field1 not in ("www.youtube.com", "youtu.be", "youtube.com"):
+            raise NonYoutubeLinkException(f"link {self.link} is not a YouTube address")
 
-    return False
+        # check if it is a traditional video
+        # videos path start with /watch or nothing if the netloc is youtu.be
+        elif not (check_field2.startswith("/watch") or check_field2.startswith("/shorts") or check_field2.startswith("/clip")) and check_field1 != "youtu.be":
+            raise NonVideoLinkException(f"{self.link} is a non-video YouTube link")
+        
+        elif check_field1 == "youtu.be" and check_field2 == '':
+            raise NonVideoLinkException(f"{self.link} is a non-video YouTube link")
+
+
+
+    def full_link_validation(self) -> None:
+        request = requests.get(self.link, timeout=3)
+
+        # check if the video is available
+        if "Video unavailable" in request.text:
+            raise VideoUnavailableException(
+                f"the YouTube video at: {self, self.link} is unavailable; please check that your link is correct")
+
+        # check to see if YouTube returns a good status code (200)
+        if request.status_code != 200:
+            raise InvalidLinkException(f"link {self, self.link} returned Status Code {request.status_code}")
 
 
 class ClippedContent():
@@ -138,30 +171,26 @@ class ClippedContent():
 
         video.close()
 
-    def custom_timestamp(self, start, end) -> None:
-        """Takes a custom timestamp and will cut accordingly"""
 
-
-class Functions():
+class VideoData():
     """necessary Functions for downloading and converting the MP4s and cleaning up after"""
     # class videos():
-    def __init__(self, name):
-        self.name_mp4 = name + '.mp4'
-        self.name = name
+    def __init__(self, nameMP4, original_file_path=None):
+        self.name_mp4 = nameMP4
+        self.name = nameMP4.removesuffix('.mp4')
+        self.original_file_path = original_file_path
 
 
-    def download_video(self, link) -> None:
+    def download_video(self, link) -> int:
         """Download the video"""
         download_link = link
 
         youtube = YouTube(download_link)
 
-        print("Be patient. Downloading...")
-
         video = youtube.streams.get_highest_resolution()
         video.download(filename=self.name_mp4)
 
-        print("Video Downloaded Successfully")
+        return 0
 
 
     def convert_mp4(self, audio_type, clip=False) -> None:
@@ -172,7 +201,9 @@ class Functions():
 
         dir_path = os.getcwd()
 
-        video_file_path = os.path.join(dir_path, self.name_mp4)
+        video_path = self.original_file_path if self.original_file_path != None else dir_path
+
+        video_file_path = os.path.join(video_path, self.name_mp4)
         audio_file_path = os.path.join(dir_path, end_name)
 
         if os.path.exists(video_file_path):
@@ -197,167 +228,110 @@ class Functions():
 
 
 class MenuNav():
-    """menu navigation with question poser and skeleton navs"""
-    def __init__(self):
-        self.question_dictionary = {}
-        self.question_dictionary["Codes"] = [
-            'question_1', 'question_2_yes', 'question_2_no_1', 'question_2_no_2', 
-            'question_2_no_3', 'question_2_no_3_1', 'question_2_no_3_2', 
-            'question_2_no_4', 'question_3']
-        self.question_dictionary["Question"] = [
-            "Would you like to convert an existing MP4 to Audio? \n0. (Y)\n1. (N)\n", 
-            "File Name: \n>>> ", "Video URL: \n>>> ", "File Name: \n>>> ", 
-            "Would you like to cut the video? \n0. (Y)\n1. (N)\n", "Start Time (s): \n>>> ",
-            "End Time (s): \n>>> ", "Audio Only ('Yes' or 'No'): \n", 
-            "File Format: \n(0) .mp3 \n(1) .wav \n"]
-        self.question_dictionary["Accepted Answers"] = [
-            [['y', 'yes', '0'], ['n', 'no', '1']], False, False, False,
-            [['yes', 'y', '1'], ['no', 'n', '0']], False, False,
-            [['yes', 'y', '1'], ['no', 'n', '0']], [['0', '.mp3', 'mp3'], ['1', '.wav', 'wav']]]
-
-    def question_poser(self, question_code: str) -> any:
-        """POSING QUESTIONS"""
-        position = self.question_dictionary["Codes"].index(question_code)
-        question = self.question_dictionary["Question"][position]
-
-        response = ''
-
-        answers = self.question_dictionary["Accepted Answers"][position]
-
-        while True:
-            response = input(question)
-
-            # checks if the question has answers list, if not just returns the response;
-            # NO need to run any of the logic again
-            if not answers:
-                return response
-
-            try:
-                int(response)
-            except ValueError:
-                response = response.lower()
-
-            valid_response = any(response in i for i in answers)
-
-            if valid_response:
-                break
-
-        if response in answers[0]:
-            return True
-
-        return False
-
-
-    def question_3(self, name, link='', clip=False) -> None:
-        """File Format: .mp3 or .wav"""
-        format_question = self.question_poser('question_3')
-
-        audio_type = '.mp3'
-
-        if not format_question:
-            audio_type = '.wav'
-
-        if clip:
-            clips_instance = ClippedContent(link)
-            link = clips_instance.original_video_link
-            Functions(name).download_video(link)
-            clips_instance.trim_content(name)
-
-        elif link != '':
-            Functions(name).download_video(link)
-
-        Functions(name).convert_mp4(audio_type, clip)
-
-
-    def question_2_yes(self) -> None:
+    """menu navigation that handles input"""
+    def convert_existing_mp4(self, file_path, audio_type) -> None:
         """File Name"""
-        # get list of Files
-        list_of_files = []
+        # split the total path into path and file 
+        # originally '/' which is how python gets the file location but now it gets the file path with '\' 
+        # so we search for that instead
+        original_file_path, nameMP4 = file_path.rsplit('\\', 1)
 
-        for file in os.listdir():
-            if file.endswith(".mp4"):
-                list_of_files.append(file)
+        functions = VideoData(nameMP4, original_file_path)
 
-        if len(list_of_files) == 0:
-            dir_path = os.getcwd()
-            raise NoMP4FilesToConvertException(
-                f"there are no MP4 files available to be converted in the directory: [{dir_path}]")
-
-        print("Files in Directory:")
-        for count, file in enumerate(list_of_files):
-            print(f"({count}) {file}")
-
-        name = self.question_poser(self.question_2_yes.__name__)
-
-        # try to convert to Integer
-        try:
-            position = int(name)
-            file = list_of_files[position].removesuffix('.mp4')
-
-            self.question_3(file)
-
-        # if integer conversion fails with ValueError
-        except ValueError:
-            try:
-                if name.endswith('.mp4'):
-                    name = name.removesuffix('.mp4')
-
-                self.question_3(name)
-
-            except FileNotFoundError:
-                print(f"FileNotFoundError: file {name}.mp4 does not exist")
+        functions.convert_mp4(audio_type)
+        functions.clean_up()
 
 
-    def question_2_no(self) -> None:
+    def download_yt_etc(self, link, name, audio_only, file_format, start=None, end=None) -> None:
         """File Name and Video URL"""
-        link = self.question_poser('question_2_no_1')
 
-        clip = link_validation(link)
+        # maybe have this activate/deactivate convert button with a try, except block
+        clip = link_validation(link).is_clip()
+        audio_type = '.mp3' if file_format else '.wav'
 
-        name = self.question_poser('question_2_no_2')
+        nameMP4 = name + '.mp4'
 
-        audio_question = self.question_poser('question_2_no_4')
-
-        custom = False
-
-        if not clip : custom = self.question_poser('question_2_no_3')
+        functions = VideoData(nameMP4=nameMP4)
+        
+        custom = None not in (start, end)
 
         if custom:
-            start = int(self.question_poser('question_2_no_3_1'))
-            end = int(self.question_poser('question_2_no_3_2'))
-            if start >= end:
-                raise EndBeforeStartException(
-                    f"your end time: {end}, is before your start time: {start}")
-
-        if audio_question:
-            self.question_3(name, link, clip)
-
-            Functions(name).clean_up(clip)
+            ClippedContent(link, custom).trim_content(name, start, end)
+            clip, audio_only = custom
 
         elif clip:
             clips_instance = ClippedContent(link)
             link = clips_instance.original_video_link
-            Functions(name).download_video(link)
+            downloaded = functions.download_video(link)
             clips_instance.trim_content(name)
-            Functions(name).clean_up(clip, False)
-
+            
         else:
-            Functions(name).download_video(link)
+            downloaded = functions.download_video(link)
 
-        if custom:
-            ClippedContent(link, custom).trim_content(name, start, end)
-            Functions(name).clean_up(custom, False)
+        if audio_only:
+            # now that we have the downloaded video lets convert it 
+            functions.convert_mp4(audio_type, clip)
 
+        functions.clean_up(clip, audio_only)
 
-    def question_1(self) -> None:
-        """Convert existing MP4?"""
-        answer = self.question_poser('question_1')
-
-        if answer:
-            self.question_2_yes()
-        else:
-            self.question_2_no()
+        return downloaded
 
 
-if __name__ == '__main__':
-    MenuNav().question_1()
+# start eel local web server 
+eel.init("web")
+
+@eel.expose
+def partial_validation(URL):
+    if URL != '':
+        try:
+            link_validation(URL).partial_validation()
+            return 0
+        except NonYoutubeLinkException:
+            return -2
+        except NonVideoLinkException:
+            return -1
+    else:
+        return 1
+
+@eel.expose
+def download_video(url, fileName, audio_only, fileFormat, start, end) -> int:
+    try:
+        link_validation(url).full_link_validation()
+    except VideoUnavailableException:
+        return -1
+    except InvalidLinkException:
+        return -2
+    
+    if 'null' in (start, end):
+        start, end = None
+
+    return MenuNav().download_yt_etc(url, fileName, audio_only, fileFormat, start, end)
+
+@eel.expose
+def getFilePath():
+    root = Tk()
+    root.withdraw()
+    root.wm_attributes('-topmost', 1)
+    file = filedialog.askopenfile(mode='r', filetypes=[('MP4 Files', '*.mp4')])
+    if file:
+        filepath = os.path.abspath(file.name)
+    return filepath
+
+@eel.expose
+def convertFile(file_path, audio_type):
+    print(file_path, audio_type)
+    MenuNav().convert_existing_mp4(file_path, audio_type)
+    return 0
+
+    # try:
+    # except:
+    #     return -1
+
+# starts chrome
+# can add params like port, host, mode, size, 
+eel.start("index.html")
+
+sys.exit(-1)
+
+# if __name__ == '__main__':
+#     MenuNav()
