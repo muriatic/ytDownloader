@@ -1,27 +1,27 @@
 
 function showFileType() {
-    $("#file_type_div").removeClass('d-none');
+    $("#file-type-div").removeClass('d-none');
 }
 
 function hideFileType() {
-    $("#file_type_div").addClass('d-none');
+    $("#file-type-div").addClass('d-none');
 }
 
-var customtimestamps = false
+var custom_timestamps = false
 
 function showStartEndQuestion() {
-    $("#start_end_div").removeClass('d-none');
-    customtimestamps = true
+    $("#start-end-div").removeClass('d-none');
+    custom_timestamps = true
 }
 
 function hideStartEndQuestion() {
-    $("#start_end_div").addClass('d-none');
-    customtimestamps = false
+    $("#start-end-div").addClass('d-none');
+    custom_timestamps = false
 }
 
 function setActivePage() {
-    pageName = location.pathname.substring(location.pathname.lastIndexOf("/") + 1);
+    page_name = location.pathname.substring(location.pathname.lastIndexOf("/") + 1);
     
-    var element = document.getElementById(pageName)
+    var element = document.getElementById(page_name)
     element.classList.add('active')
 }

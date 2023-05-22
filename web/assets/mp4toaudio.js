@@ -1,5 +1,5 @@
 async function getFolder() {
-    var file_path = await eel.getFilePath()();
+    var file_path = await eel.get_file_path()();
     if (file_path) {
         $('#selectedFile').html(file_path)
         $('#convertToMP3').removeClass('disabled')
@@ -19,7 +19,7 @@ async function convertToMP3() {
     $("#Message").removeClass('alert-danger')
     var filePath = document.getElementById("selectedFile").innerHTML;
 
-    var responseCode = await eel.convertFile(filePath, '.mp3')();
+    var responseCode = await eel.convert_file(filePath, '.mp3')();
 
     switch(responseCode) {
         case 0:
@@ -41,7 +41,7 @@ async function convertToWAV() {
     $("#Message").removeClass('alert-danger')
     var filePath = document.getElementById("selectedFile").innerHTML;
 
-    var responseCode = await eel.convertFile(filePath, '.wav')();
+    var responseCode = await eel.convert_file(filePath, '.wav')();
 
     switch(responseCode) {
         case 0:

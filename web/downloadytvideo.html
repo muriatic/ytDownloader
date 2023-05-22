@@ -9,35 +9,29 @@
         <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico?">
 
         <title>ytDownloader</title>
-
+        
         <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
         <link rel="stylesheet" href="assets/stylesheet.css">
-        <style>
-            body{
-                background: rgb(205, 205, 205);
-            }
-        </style>
+    
+        <script src="/eel.js" ></script>
+        <script src="assets/jquery/jquery-3.7.0.min.js"></script>
+        <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="assets/script.js"></script>
+        <script src="assets/yt_downloader.js"></script>
     </head>
 
     <body class="downloadytvideo">
         <div class="container-fluid px-5 py-5" id="main-container">
-            <nav class="navbar navbar-expand-lg px-4 navbar-light" style="background-color: #e3f2fd";>
-            <a class="navbar-brand" href="index.html">
-                <img src="assets/images/iconDifferentBG.png" width="32" height="32" class="d-inline-block align-top" alt="">
-                ytDownloader
-            </a>
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                <a class="nav-link" id="index.html" href="index.html">Home</a>
-                </li>
-                <li class="nav-item">
-                <a class="nav-link" id="mp4toaudio.html" href="mp4toaudio.html">Convert MP4 to Audio</a>
-                </li>
-                <li class="nav-item">
-                <a class="nav-link" id="downloadytvideo.html" href="downloadytvideo.html">Download a YouTube Video</a>
-                </li>
-            </ul>
-            </nav>
+            <div id="navbar">
+                <!--Navigation bar-->
+                <div id="nav-placeholder"></div>
+                <script>
+                    $.get("navbar.html", function(data){
+                        $("#nav-placeholder").replaceWith(data);
+                    });
+                </script>
+                <!--end of Navigation bar-->
+            </div>
             <div class="container-fluid bg-white py-3 px-5">
                 <div class="text-center">
                     <p class="display-1">Download YouTube Video</p>
@@ -46,91 +40,73 @@
                 <hr>
                 <div class="container-fluid px-5">
                     <div class="d-grid gap-5">
-                        <div class="d-grid gap-5">
-                            <div class="form-group">
-                                <label for="videoURL" class="display-6">Video URL</label>
-                                <input type="text" class="form-control" id="videoURL" aria-describedby="videoURLHelp" placeholder="Video URL" required>
-                                <small id="videoURLHelp" class="form-text text-muted">Supported Type: YouTube Videos, YouTube Shorts, YouTube Clip</small>
-                                <br>
-                                <span id="error1" style="color: red" class="d-none">error1</span>
-                                <br>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="fileName" class="display-6">File Name</label>
-                                <input type="text" class="form-control" id="fileName" aria-describedby="fileNameHelp" placeholder="File Name">
-                                <span id="error2" style="color: red" class="d-none">error2</span>
-                                <br>
-                            </div>
+                        <div class="form-group">
+                            <label for="video-url" class="display-6">Video URL</label>
+                            <input type="text" class="form-control" id="video-url" aria-describedby="video-url-help" placeholder="Video URL">
+                            <small id="video-url-help" class="form-text text-muted">Supported Type: YouTube Videos, YouTube Shorts, YouTube Clip</small>
+                            <!-- So... bootstrap's .invalid-feedback class is just super unreliable and a .d-block class solves it :( -->
+                            <div id="error-1" class="messages invalid-feedback d-block">error1</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="file-name" class="display-6">File Name</label>
+                            <input type="text" class="form-control" id="file-name" aria-describedby="file-name-help" placeholder="File Name">
+                            <!-- So... bootstrap's .invalid-feedback class is just super unreliable and a .d-block class solves it :( -->
+                            <div id="error-2" class="messages invalid-feedback d-block">error2</div>
                         </div>
                         <div class="d-grid gap-3">
-                            <label for="audio_only_question" class="display-6">Audio Only</label>
-                            <div class="btn-group btn-group-toggle" id="audio_only_question" data-toggle="buttons">
-                                <label class="btn btn-secondary" onclick="showFileType()">
-                                    <input type="radio" name="audio_only" class="d-none" id="audioOnlyTrue" autocomplete="off"> Yes
+                            <label for="audio-only-question" class="display-6">Audio Only</label>
+                            <div class="btn-group btn-group-toggle" id="audio-only-question" data-toggle="buttons">
+                                <label class="btn btn-secondary" onclick="showFileTypes()">
+                                    <input type="radio" name="audio-only" class="d-none" id="audio-only" autocomplete="off"> Yes
                                 </label>
-                                <label class="btn btn-secondary active" onclick="hideFileType()">
-                                    <input type="radio" name="audio_only" class="d-none" id="False" autocomplete="off" checked> No
+                                <label class="btn btn-secondary active" onclick="hideFileTypes()">
+                                    <input type="radio" name="audio-only" class="d-none" autocomplete="off" checked> No
                                 </label>
                             </div>
 
-                            <div id="file_type_div" class="d-none">
-                                <label for="file_type_question" class="display-6">File Format</label>
-                                <div class="btn-group btn-group-toggle w-100" id="file_type_question" data-toggle="buttons">
+                            <div id="file-type-div" class="d-none">
+                                <label for="file-type-question" class="display-6">File Format</label>
+                                <div class="btn-group btn-group-toggle w-100" id="file-type-question" data-toggle="buttons">
                                     <label class="btn btn-secondary active">
-                                        <input type="radio" name="file_type" class="d-none" id="mp3" autocomplete="off" checked> .mp3
+                                        <input type="radio" name="file-type" class="d-none" id="mp3" autocomplete="off" checked> .mp3
                                     </label>
                                     <label class="btn btn-secondary">
-                                        <input type="radio" name="file_type" class="d-none" id="wav" autocomplete="off"> .wav
+                                        <input type="radio" name="file-type" class="d-none" id="wav" autocomplete="off"> .wav
                                     </label>
                                 </div>
                             </div>
                         </div>
                         <div class="d-grid gap-3">
-                            <label for="custom_timestamps_question" class="display-6">Custom Timestamps</label>
-                            <div class="btn-group btn-group-toggle" id="custom_timestamps_question" data-toggle="buttons">
+                            <label for="custom-timestamps-question" class="display-6">Custom Timestamps</label>
+                            <div class="btn-group btn-group-toggle" id="custom-timestamps-question" data-toggle="buttons">
                                 <label class="btn btn-secondary" onclick="showStartEndQuestion()">
-                                    <input type="radio" name="custom_timestamps" class="d-none" id="customTimeStamps" autocomplete="off"> Yes
+                                    <input type="radio" name="custom-timestamps" class="d-none" id="custom-timestamps" autocomplete="off"> Yes
                                 </label>
                                 <label class="btn btn-secondary active" onclick="hideStartEndQuestion()">
-                                    <input type="radio" name="custom_timestamps" class="d-none" id="False" autocomplete="off" checked> No
+                                    <input type="radio" name="custom-timestamps" class="d-none" autocomplete="off" checked> No
                                 </label>
                             </div>
 
-                            <div id="start_end_div" class="d-none">
-                                <label for="times_question" class="display-6">Times</label>
-                                <div class="input-group" id="times_question">
-                                    <input type="number" class="form-control" id="custom_start" placeholder="Start">
+                            <div id="start-end-div" class="d-none">
+                                <label for="times-question" class="display-6">Times</label>
+                                <div class="input-group" id="times-question">
+                                    <input type="number" class="form-control" id="custom-start" placeholder="Start">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text">-</span>
+                                        <span class="input-group-text" style="border-radius: 0px;">-</span>
                                     </div>
-                                    <input type="number" class="form-control" id="custom_end" placeholder="End">
+                                    <input type="number" class="form-control" id="custom-end" placeholder="End">
+                                    <!-- I don't know how, I don't know why, I probably don't want to know but it would appear that by putting the error here, I get the error message to appear :< -->
+                                    <!-- error message for wrong start/end times -->
+                                    <div id="invalid-times" class="messages invalid-feedback d-block">Start Time Must Be Before the End Time</div>
                                 </div>
-                                <span id="invalidTimes" style="color: red" class="d-none">Start Time Must Be Before the End Time</span>
                             </div>
                         </div>
-                        <div>
-                            <button id="convert" class="btn btn-primary btn-lg w-100 disabled" onclick="formSubmission()">Convert</button>
-                            <span id="submissionError" style="color: red" class="d-none">Start Time Must Be Before the End Time</span>
-                            <br>
-                            <br>
-                            <div id="successMessage" class="alert alert-success d-none" role="alert">
-                                Success Message
-                            </div>
-                            <br>
-                        </div>
+                        <button id="convert" class="btn btn-primary btn-lg w-100 disabled" onclick="formSubmission()">Convert</button>
+                        <div id="submission-response" class="messages alert" role="alert">Filler Reponse</div>
                     </div>
                 </div>
             </div>
         </div>
-    
-        <script src="/eel.js" ></script>
-        <script src="assets/jquery/jquery-3.7.0.min.js"></script>
-        <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="assets/script.js"></script>
-        <script src="assets/yt_downloader.js"></script>
-        <script>
-            setActivePage();
-        </script>
     </body>
 </html>

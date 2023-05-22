@@ -18,7 +18,11 @@ body{
   box-sizing:border-box;
 }
 
-.my-custom-button {
+.messages {
+  visibility: hidden;
+}
+
+.get-folder {
   display: flex;
   height: 50px;
   padding: 0;
@@ -31,13 +35,12 @@ body{
   border: 1px solid #dee2e6;
 }
 
-.my-custom-button:hover {
+/* fade delay like bootstrap*/
+.get-folder:hover {
   background: #e9ecef;
   transition: 0.3s;
 }
-
-/* might want to add a fade delay like bootstrap*/
-.button__text {
+.get-folder-text {
   border-radius: 0px;
   border-right: 1px solid #dee2e6;
   display: inline-flex;
@@ -47,7 +50,7 @@ body{
   text-align: center;
 }
 
-.button__fileName {
+.get-folder-file-name {
   border-radius: 0px;
   background-color: #ffffff;
   display: flex;
@@ -56,7 +59,3 @@ body{
   height: 100%;
   width: 100%; /*calc(100% - 30px);*/
 }
-
-/* .my-custom-button:active {
-  background: #B8B8B8
-} */

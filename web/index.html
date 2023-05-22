@@ -1,55 +1,42 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
-        <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico?">
-
-        <title>ytDownloader</title>
-
-        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="assets/stylesheet.css">
-    </head>
-
-    <body class="index">
-      <!-- might be able to use python to load the navbar in -->
-      <div class="container-fluid px-5 py-5" id="main-container">
-        <nav class="navbar navbar-expand-lg px-4 navbar-light" style="background-color: #e3f2fd";>
-          <a class="navbar-brand" href="index.html">
-            <img src="assets/images/iconDifferentBG.png" width="32" height="32" class="d-inline-block align-top" alt="">
-            ytDownloader
-          </a>
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link" id="index.html" href="index.html">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="mp4toaudio.html" href="mp4toaudio.html">Convert MP4 to Audio</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="downloadytvideo.html" href="downloadytvideo.html">Download a YouTube Video</a>
-            </li>
-          </ul>
-        </nav>
-
-
-        <div class="container-fluid bg-white py-3 px-5">
-            <div class="text-center">
-                <h1 class="display-1">ytDownloader</h1>
-                <p class="h4 text-muted">Welcome</p>
-            </div>
-            <hr>
-        </div>
-      </div>
-        <script src="/eel.js" ></script>
-        <script src="assets/jquery/jquery-3.7.0.min.js"></script>
-        <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-        <script src="assets/script.js"></script>
+  <head>
+    
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico?">
+    
+    <title>ytDownloader</title>
+    
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/stylesheet.css">
+    <script src="assets/jquery/jquery-3.7.0.min.js"></script>
+    <script src="/eel.js" ></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/script.js"></script>
+  </head>
+  
+  <body class="index">
+    <div class="container-fluid px-5 py-5" id="main-container">
+      <!--Navigation bar-->
+      <div id="navbar">
+        <div id="nav-placeholder"></div>
         <script>
-          setActivePage();
-      </script>
+          $.get("navbar.html", function(data){
+            $("#nav-placeholder").replaceWith(data);
+          });
+        </script>
+        </div>
+      <!-- end of navbar-->
+        <div class="container-fluid bg-white py-3 px-5">
+          <div class="text-center">
+              <h1 class="display-1">ytDownloader</h1>
+              <p class="h4 text-muted">Welcome</p>
+          </div>
+          <hr>
+      </div>
+    </div>
     </body>
 </html>

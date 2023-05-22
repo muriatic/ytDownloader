@@ -1,79 +1,64 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
-        <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico?">
-
-
-        <title>ytDownloader</title>
-        <!-- bootstrap stylesheet-->
-        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-
-        <!-- my stylesheet-->
-        <link rel="stylesheet" href="assets/stylesheet.css">
-        <style>
-            body{
-                background: rgb(205, 205, 205);
-            }
-        </style>
+  <head>
+    
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico?">
+    
+    
+    <title>ytDownloader</title>
+    <!-- bootstrap stylesheet-->
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    
+    <!-- my stylesheet-->
+    <link rel="stylesheet" href="assets/stylesheet.css">
+    <script src="/eel.js" ></script>
+    <script src="assets/jquery/jquery-3.7.0.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/script.js"></script>
+    <script src="assets/mp4toaudio.js"></script>
     </head>
 
     <body class="mp4toaudio">
         <div class="container-fluid px-5 py-5" id="main-container">
-            <nav class="navbar navbar-expand-lg px-4 navbar-light" style="background-color: #e3f2fd";>
-              <a class="navbar-brand" href="index.html">
-                <img src="assets/images/iconDifferentBG.png" width="32" height="32" class="d-inline-block align-top" alt="">
-                ytDownloader
-              </a>
-              <ul class="navbar-nav">
-                <li class="nav-item">
-                  <a class="nav-link" id="index.html" href="index.html">Home</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="mp4toaudio.html" href="mp4toaudio.html">Convert MP4 to Audio</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" id="downloadytvideo.html" href="downloadytvideo.html">Download a YouTube Video</a>
-                </li>
-              </ul>
-            </nav>
-            
-            <div class="container-fluid bg-white py-3 px-5">
-                <div class="text-center">
-                    <h1 class="display-1">Convert MP4 to Audio</h1>
-                    <p class="h4 text-muted">Supported File Types: MP3 and WAV</p>
-                </div>
-                <div>
-                    <label for="fileSelectButton" class="form-label display-6">Select an MP4 File to Convert</label>                    
-                    <button id="fileSelectButton" type="button" class="my-custom-button" onclick="getFolder()">
-                      <span class="button__text form-control-lg">Choose File</span>
-                      <span id="selectedFile" class="button__fileName form-control-lg">No file chosen</span>
-                    </button>
-                  </div>
-                <br>
-                <hr>
-                <div class="btn-group d-flex">
-                    <button id="convertToMP3" href="" class="btn btn-primary btn-lg w-100 disabled" onclick="convertToMP3()">Convert to MP3</button>
-                    <button id="convertToWAV" href="" class="btn btn-primary btn-lg w-100 disabled" onclick="convertToWAV()">Convert to WAV</button>
-                </div>
-                <br>
-                <div id="Message" class="alert d-none" role="alert">
-                    Success Message
-                </div>
+          <div id="navbar">
+            <!--Navigation bar-->
+            <div id="nav-placeholder"></div>
+            <script>
+              $.get("navbar.html", function(data){
+                  $("#nav-placeholder").replaceWith(data);
+              });
+            </script>
+            <!--end of Navigation bar-->
+          </div>
+          
+          <div class="container-fluid bg-white py-3 px-5">
+            <div class="text-center">
+              <h1 class="display-1">Convert MP4 to Audio</h1>
+              <p class="h4 text-muted">Supported File Types: MP3 and WAV</p>
             </div>
+            <div>
+              <label for="fileSelectButton" class="form-label display-6">Select an MP4 File to Convert</label>                    
+              <button id="fileSelectButton" type="button" class="get-folder" onclick="getFolder()">
+                <span class="get-folder-text form-control-lg">Choose File</span>
+                <span id="selectedFile" class="get-folder-file-name form-control-lg">No file chosen</span>
+              </button>
+            </div>
+            <br>
+            <hr>
+            <div class="btn-group d-flex">
+              <button id="convertToMP3" href="" class="btn btn-primary btn-lg w-100 disabled" onclick="convertToMP3()">Convert to MP3</button>
+              <button id="convertToWAV" href="" class="btn btn-primary btn-lg w-100 disabled" onclick="convertToWAV()">Convert to WAV</button>
+            </div>
+            <br>
+            <div id="Message" class="alert d-none" role="alert">
+              Success Message
+            </div>
+          </div>
         </div>
     
-        <script src="/eel.js" ></script>
-        <script src="assets/jquery/jquery-3.7.0.min.js"></script>
-        <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-        <script src="assets/script.js"></script>
-        <script src="assets/mp4toaudio.js"></script>
-        <script>
-            setActivePage();
-        </script>
     </body>
 </html>

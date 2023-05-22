@@ -3,6 +3,8 @@ import traceback
 import sys
 import os
 from urllib.parse import urlparse
+from tkinter import Tk
+from tkinter import filedialog
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,13 +13,19 @@ from selenium.common.exceptions import TimeoutException
 from pytube import YouTube
 from moviepy import editor as moviepy
 import requests
-from tkinter import Tk
-from tkinter import filedialog
 
-f = open(os.devnull, 'w')
-sys.stdout = f
-sys.stderr = f
+# I don't know why this is necessary, but something about when this is compiled
+# without a console causes an attribute error with std in/out I think,
+# there are several solutions, this is the one I chose
+# see https://github.com/python-eel/Eel/issues/654 for more
 
+# this may need fixing on compilation
+with open(os.devnull, 'w') as f:
+    sys.stdout = f
+    sys.stderr = f
+
+# yes, pylint gets angry, but this needs to come after the above code
+# otherwise eel doesn't get the right stdout, stderr (see above github page)
 import eel
 
 ### END OF IMPORT ###
@@ -54,7 +62,8 @@ def show_exception_and_exit(exc_type, exc_value, tb_object):
 sys.excepthook = show_exception_and_exit
 
 
-class link_validation():
+class LinkValidation():
+    """Class for LinkValidation, returns clip value, status codes, and correct paths"""
     def __init__(self, link):
         self.link = link
         self.parsed_url = urlparse(link)
@@ -65,11 +74,12 @@ class link_validation():
         # clips path start with /clip
         if self.parsed_url.path.startswith("/clip"):
             return True
-        
+
         return False
-    
+
 
     def partial_validation(self) -> None:
+        """only validates based on the string itself, does not check if YouTube responds to it"""
         parsed_url = urlparse(self.link)
 
         netloc = parsed_url.netloc
@@ -86,32 +96,35 @@ class link_validation():
             except ValueError:
                 check_field1 = path
                 check_field2 = ''
-        
+
+        valid_prefixes = ("/watch", "/shorts", "/clip")
+
         # check if it is a YouTube link
         if check_field1 not in ("www.youtube.com", "youtu.be", "youtube.com"):
             raise NonYoutubeLinkException(f"link {self.link} is not a YouTube address")
 
-        # check if it is a traditional video
-        # videos path start with /watch or nothing if the netloc is youtu.be
-        elif not (check_field2.startswith("/watch") or check_field2.startswith("/shorts") or check_field2.startswith("/clip")) and check_field1 != "youtu.be":
-            raise NonVideoLinkException(f"{self.link} is a non-video YouTube link")
-        
-        elif check_field1 == "youtu.be" and check_field2 == '':
+        # check if it is a long video link (non youtu.be)
+        if not check_field2.startswith(tuple(valid_prefixes)) and check_field1 != "youtu.be":
             raise NonVideoLinkException(f"{self.link} is a non-video YouTube link")
 
+        if check_field1 == "youtu.be" and check_field2 == '':
+            raise NonVideoLinkException(f"{self.link} is a non-video YouTube link")
 
 
     def full_link_validation(self) -> None:
+        """Checks to see if YouTube actually provides a response"""
         request = requests.get(self.link, timeout=3)
 
         # check if the video is available
         if "Video unavailable" in request.text:
             raise VideoUnavailableException(
-                f"the YouTube video at: {self, self.link} is unavailable; please check that your link is correct")
+                f"the YouTube video at: {self.link} is unavailable; \
+                    please check that your link is correct")
 
         # check to see if YouTube returns a good status code (200)
         if request.status_code != 200:
-            raise InvalidLinkException(f"link {self, self.link} returned Status Code {request.status_code}")
+            raise InvalidLinkException(
+                f"link {self.link} returned Status Code {request.status_code}")
 
 
 class ClippedContent():
@@ -134,7 +147,6 @@ class ClippedContent():
             except IndexError:
                 pass
 
-            # https://stackoverflow.com/a/26567563/12693728: wait for page to be loaded
             timeout = 3
             try:
                 element_present = EC.presence_of_element_located(
@@ -145,7 +157,6 @@ class ClippedContent():
 
             video_id = driver.page_source.split('"videoDetails":{"videoId":"')[1]
             self.video_id = video_id.split('"')[0]
-            # print(video_id)
 
             start_time_ms = driver.page_source.split('"startTimeMs":"')[1]
             self.start_time_ms = int(start_time_ms.split('"')[0])
@@ -180,9 +191,9 @@ class ClippedContent():
 class VideoData():
     """necessary Functions for downloading and converting the MP4s and cleaning up after"""
     # class videos():
-    def __init__(self, nameMP4, original_file_path=None):
-        self.name_mp4 = nameMP4
-        self.name = nameMP4.removesuffix('.mp4')
+    def __init__(self, name_mp4, original_file_path=None):
+        self.name_mp4 = name_mp4
+        self.name = name_mp4.removesuffix('.mp4')
         self.original_file_path = original_file_path
 
 
@@ -206,13 +217,12 @@ class VideoData():
 
         dir_path = os.getcwd()
 
-        video_path = self.original_file_path if self.original_file_path != None else dir_path
+        video_path = self.original_file_path if self.original_file_path is not None else dir_path
 
         video_file_path = os.path.join(video_path, self.name_mp4)
         audio_file_path = os.path.join(dir_path, end_name)
 
         if os.path.exists(video_file_path):
-
             file_to_convert = moviepy.AudioFileClip(video_file_path)
             file_to_convert.write_audiofile(audio_file_path)
 
@@ -236,27 +246,32 @@ class MenuNav():
     """menu navigation that handles input"""
     def convert_existing_mp4(self, file_path, audio_type) -> None:
         """File Name"""
-        # split the total path into path and file 
-        # originally '/' which is how python gets the file location but now it gets the file path with '\' 
+        # split the total path into path and file
+        # originally '/' which is how python gets the file location
+        # but now it gets the file path with '\'
         # so we search for that instead
-        original_file_path, nameMP4 = file_path.rsplit('\\', 1)
+        original_file_path, name_mp4 = file_path.rsplit('\\', 1)
 
-        functions = VideoData(nameMP4, original_file_path)
+        functions = VideoData(name_mp4, original_file_path)
 
         functions.convert_mp4(audio_type)
         functions.clean_up()
 
 
-    def download_yt_etc(self, link, name, audio_only, file_format, start=None, end=None) -> None:
+    def download_yt_etc(self, link, name, file_format=None, start_end=(None, None)) -> bool:
         """File Name and Video URL"""
+        start, end = start_end
 
-        clip = link_validation(link).is_clip()
+        audio_only = file_format is not None
+
+        clip = LinkValidation(link).is_clip()
+
         audio_type = '.mp3' if file_format else '.wav'
 
-        nameMP4 = name + '.mp4'
+        name_mp4 = name + '.mp4'
 
-        functions = VideoData(nameMP4=nameMP4)
-        
+        functions = VideoData(name_mp4)
+
         custom = None not in (start, end)
 
         if custom:
@@ -268,12 +283,12 @@ class MenuNav():
             link = clips_instance.original_video_link
             downloaded = functions.download_video(link)
             clips_instance.trim_content(name)
-            
+
         else:
             downloaded = functions.download_video(link)
 
         if audio_only:
-            # now that we have the downloaded video lets convert it 
+            # now that we have the downloaded video lets convert it
             functions.convert_mp4(audio_type, clip)
 
         functions.clean_up(clip, audio_only)
@@ -281,14 +296,15 @@ class MenuNav():
         return downloaded
 
 
-# start eel local web server 
+# start local eel web server
 eel.init("web")
 
 @eel.expose
-def partial_validation(URL):
-    if URL != '':
+def partial_validation_python(url):
+    """Passes the url from JS to local validation function. Potentially unnecessary"""
+    if url != '':
         try:
-            link_validation(URL).partial_validation()
+            LinkValidation(url).partial_validation()
             return 0
         except NonYoutubeLinkException:
             return -2
@@ -298,21 +314,23 @@ def partial_validation(URL):
         return 1
 
 @eel.expose
-def download_video(url, fileName, audio_only, fileFormat, start, end) -> int:
+def download_video(url, file_name, file_format, start, end) -> int:
+    """Passes JS args to local download function"""
     try:
-        link_validation(url).full_link_validation()
+        LinkValidation(url).full_link_validation()
     except VideoUnavailableException:
         return -1
     except InvalidLinkException:
         return -2
-    
-    if 'null' in (start, end):
-        start, end = None
 
-    return MenuNav().download_yt_etc(url, fileName, audio_only, fileFormat, start, end)
+    if 'null' in (start, end):
+        start, end = None, None
+
+    return MenuNav().download_yt_etc(url, file_name, file_format, (start, end))
 
 @eel.expose
-def getFilePath():
+def get_file_path():
+    """Presents file explorer and return the filepath to JS"""
     root = Tk()
     root.withdraw()
     root.wm_attributes('-topmost', 1)
@@ -322,20 +340,12 @@ def getFilePath():
     return filepath
 
 @eel.expose
-def convertFile(file_path, audio_type):
+def convert_file(file_path, audio_type):
+    """Passes JS args to local Python conversion function"""
     print(file_path, audio_type)
     MenuNav().convert_existing_mp4(file_path, audio_type)
     return 0
 
-    # try:
-    # except:
-    #     return -1
-
 # starts chrome
-# can add params like port, host, mode, size, 
+# can add params like port, host, mode, size,
 eel.start("index.html")
-
-sys.exit(-1)
-
-# if __name__ == '__main__':
-#     MenuNav()
