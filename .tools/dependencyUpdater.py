@@ -26,41 +26,36 @@ with open(fileName, 'r') as input:
             break
         lines.append(line)
 
-# remove comments ### or """
-lines[:] = [x for x in lines if not x.startswith('"""')]
-lines[:] = [x for x in lines if not x.startswith('###')]
-
-# remove new lines
-lines[:] = [x for x in lines if not x.startswith('\n')]
-lines[:] = [x.removesuffix('\n') for x in lines if x.endswith('\n')]
+# import lines 
+lines[:] = [x for x in lines if x.startswith(("import", "from"))]
+lines[:] = [x.replace("\n", "") for x in lines]
 
 # find the part left or right of import that we want
-fromLines = [x.split('import ')[0] for x in lines if x.startswith('from')]
-importLines = [x.split('import ')[1] for x in lines if x.startswith('import')]
+importLines = [x for x in lines if x.startswith("import")]
+fromLines = [x for x in lines if x not in importLines]
 
 # get the part we want
-fromLines[:] = [x.split('from ')[1] for x in fromLines if x.startswith('from')]
-fromLines[:] = [x.split('.')[0] for x in fromLines]
+importLines[:] = [x.split('import ')[1] for x in importLines]
+fromLines[:] = [x.split(' import')[0].split('from ')[1].split('.')[0] for x in fromLines]
 
 # remove duplicates
+importLines[:] = list(set(importLines))
 fromLines[:] = list(set(fromLines))
 
-# combine the lists
-packages = fromLines+importLines
-
+# remove duplicates
+packages = list(set(importLines + fromLines))
 
 # unnecessary to include in yt_downloader.py but necessary for dependencies.md
 packages.append('pyinstaller')
 
-# remove spaces
-packages[:] = [x.replace(" ", "") for x in packages]
+# for some weird reason eel is saved as a package as Eel so we need to adjust it in the list
+packages[:] = [x.replace("eel", "Eel") for x in packages]
 
 # alphabetize
 packages.sort()
 
 # create dictionary of packages and versions installed AND used
 versionPackage = {k: nameVersion[k] for k in packages if k in nameVersion}
-
 
 requirementLine = []
 
