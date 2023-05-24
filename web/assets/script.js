@@ -1,4 +1,3 @@
-
 function showFileType() {
     $("#file-type-div").removeClass('d-none');
 }
