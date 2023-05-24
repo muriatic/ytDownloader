@@ -15,7 +15,6 @@
     
     <!-- my stylesheet-->
     <link rel="stylesheet" href="assets/stylesheet.css">
-    <script src="/eel.js" ></script>
     <script src="assets/jquery/jquery-3.7.0.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/script.js"></script>
@@ -26,38 +25,39 @@
       <div id="navbar">
         <!--Navigation bar-->
         <div id="nav-placeholder"></div>
-        <script>
-          $.get("navbar.html", function(data){
-            $("#nav-placeholder").replaceWith(data);
-          });
+          <script>
+            $.get("navbar.html", function(data){
+              $("#nav-placeholder").replaceWith(data);
+            });
           </script>
-            <!--end of Navigation bar-->
-          </div>
+          <!--end of Navigation bar-->
+        </div>
           
-          <div class="container-fluid bg-white py-3 px-5">
-            <div class="text-center">
-              <h1 class="display-1">Convert MP4 to Audio</h1>
-              <p class="h4 text-muted">Supported File Types: MP3 and WAV</p>
-            </div>
-            <div>
-              <label for="fileSelectButton" class="form-label display-6">Select an MP4 File to Convert</label>                    
-              <button id="fileSelectButton" type="button" class="get-folder" onclick="getFolder()">
-                <span class="get-folder-text form-control-lg">Choose File</span>
-                <span id="selectedFile" class="get-folder-file-name form-control-lg">No file chosen</span>
-              </button>
-            </div>
-            <br>
-            <hr>
-            <div class="btn-group d-flex">
-              <button id="convertToMP3" href="" class="btn btn-primary btn-lg w-100 disabled" onclick="convertToMP3()">Convert to MP3</button>
-              <button id="convertToWAV" href="" class="btn btn-primary btn-lg w-100 disabled" onclick="convertToWAV()">Convert to WAV</button>
-            </div>
-            <br>
-            <div id="Message" class="alert d-none" role="alert">
-              Success Message
-            </div>
+        <div class="container-fluid bg-white py-3 px-5">
+          <div class="text-center">
+            <h1 class="display-1">Convert MP4 to Audio</h1>
+            <p class="h4 text-muted">Supported File Types: MP3 and WAV</p>
+          </div>
+          <div>
+            <label for="fileSelectButton" class="form-label display-6">Select an MP4 File to Convert</label>                    
+            <button id="fileSelectButton" type="button" class="get-folder" onclick="getFolder()">
+              <span class="get-folder-text form-control-lg">Choose File</span>
+              <span id="selectedFile" class="get-folder-file-name form-control-lg">No file chosen</span>
+            </button>
+          </div>
+          <br>
+          <hr>
+          <div class="btn-group d-flex">
+            <button id="convertToMP3" href="" class="btn btn-primary btn-lg w-100 disabled" onclick="convertToMP3()">Convert to MP3</button>
+            <button id="convertToWAV" href="" class="btn btn-primary btn-lg w-100 disabled" onclick="convertToWAV()">Convert to WAV</button>
+          </div>
+          <br>
+          <div id="Message" class="alert d-none" role="alert">
+            Success Message
           </div>
         </div>
-        <script src="assets/mp4toaudio.js"></script>
-      </body>
+      </div>
+    <script src="/eel.js" ></script>
+    <script src="assets/mp4toaudio.js"></script>
+  </body>
 </html>
