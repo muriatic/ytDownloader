@@ -19,19 +19,18 @@
     <script src="assets/jquery/jquery-3.7.0.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/script.js"></script>
-    <script src="assets/mp4toaudio.js"></script>
-    </head>
-
-    <body class="mp4toaudio">
-        <div class="container-fluid px-5 py-5" id="main-container">
-          <div id="navbar">
-            <!--Navigation bar-->
-            <div id="nav-placeholder"></div>
-            <script>
-              $.get("navbar.html", function(data){
-                  $("#nav-placeholder").replaceWith(data);
-              });
-            </script>
+  </head>
+  
+  <body class="mp4toaudio">
+    <div class="container-fluid px-5 py-5" id="main-container">
+      <div id="navbar">
+        <!--Navigation bar-->
+        <div id="nav-placeholder"></div>
+        <script>
+          $.get("navbar.html", function(data){
+            $("#nav-placeholder").replaceWith(data);
+          });
+          </script>
             <!--end of Navigation bar-->
           </div>
           
@@ -59,6 +58,6 @@
             </div>
           </div>
         </div>
-    
-    </body>
+        <script src="assets/mp4toaudio.js"></script>
+      </body>
 </html>
