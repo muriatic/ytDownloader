@@ -1,8 +1,8 @@
-function showFileType() {
+function showFileTypes() {
     $("#file-type-div").removeClass('d-none');
 }
 
-function hideFileType() {
+function hideFileTypes() {
     $("#file-type-div").addClass('d-none');
 }
 
