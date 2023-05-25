@@ -7,29 +7,38 @@ sys.path.append('../ytDownloader')
 
 import yt_downloader as ytD
 
-error_links_responses = {
+# currently required to comment out the with open line... might be beneficial to add this during compilation instead
+
+error_partial_validation_links = {
+    ### partial validation links:
     # non YouTube Link ... raises NonYouTubeLinkException
     'https://www.python.org/' : 'ytD.NonYoutubeLinkException',
-    # channel link ... raises VideoUnavailableException
-    'https://www.youtube.com/@programmersarealsohuman5909' : 'ytD.VideoUnavailableException',
+    # non video link (channel link) ... raises NonVideoLinkException
+    'https://www.youtube.com/@programmersarealsohuman5909' : 'ytD.NonVideoLinkException',
+    # shortened YT link but no info
+    'youtu.be' : 'ytD.NonVideoLinkException'
+}
+
+error_full_validation_links = {
+    ### full validation links:
     # invalid link ... raises VideoUnavailableException
     'https://youtu.be/s7wLYzRJt32' : 'ytD.VideoUnavailableException',
     # 404 link ... raises InvalidLinkException
     'https://www.youtube.com/watch(123' :'ytD.InvalidLinkException'
 }
 
-validLinks_Results = {
-    # clip link ... returns True
-    'https://www.youtube.com/clip/UgkxU2HSeGL_NvmDJ-nQJrlLwllwMDBdGZFs' : 'True',
-    # standard video w/ watch?v= and &ab_channel= ... returns False
-    'https://www.youtube.com/watch?v=s7wLYzRJt3s&ab_channel=Programmersarealsohuman' : 'False',
-    # standard video w/ watch?v= and w/o &ab_channel ... returns False
-    'https://www.youtube.com/watch?v=s7wLYzRJt3s' : 'False',
-    # short video link ... returns False
-    'https://youtu.be/s7wLYzRJt3s' : 'False',
-    # YT Shorts video link ... returns False
-    'https://www.youtube.com/shorts/W_tw5_WEHDU' : 'False'
-}
+validLinks = [
+    # standard video w/ watch?v= and &ab_channel=
+    'https://www.youtube.com/watch?v=s7wLYzRJt3s&ab_channel=Programmersarealsohuman',
+    # standard video w/ watch?v= and w/o &ab_channel
+    'https://www.youtube.com/watch?v=s7wLYzRJt3s',
+    # short video link
+    'https://youtu.be/s7wLYzRJt3s',
+    # YT Shorts video link
+    'https://www.youtube.com/shorts/W_tw5_WEHDU'
+]
+
+clip_link = 'https://www.youtube.com/clip/UgkxU2HSeGL_NvmDJ-nQJrlLwllwMDBdGZFs'
 
 name = '__TEST__'
 name_trim_mp4 = name + '_trim' + '.mp4'
@@ -56,15 +65,13 @@ def move_file(file_name):
     # testAssets directory 
     file_name_path = '.tools/testAssets/' + file_name
 
-    raw_name = file_name.removesuffix('.mp4')
-
     if os.path.isfile(file_name_path):
         shutil.copy(file_name_path, cwd)
     else: 
         # if the file is not found in the testAssets folder, attempt to download it, 
         # and place it in the testAssets folder
         print(file_name, "not found in /testAssets. Attempting to download the video")
-        ytD.Functions(raw_name).download_video(test_video)
+        ytD.VideoData(file_name).download_video(test_video)
         shutil.copy(os.path.join(cwd, file_name), file_name_path)
 
 
@@ -99,70 +106,78 @@ class Testyt_downloader(unittest.TestCase):
         # check if page returns status code not 200 (example returns error code: 404)
         
         n = 0
-        for n in range(len(error_links_responses)):
-            # test for NonYoutubeLinkException converting the string to code with eval()
-            # gets the items from the dict, converts it to a list, then accesses the nth couple and then the 1st or 2nd value
+
+        # test partial validation
+        for link, value in error_partial_validation_links.items():            
+            # convert it to an actual error message
+            returnValue = eval(value)
             
-            link = (list(error_links_responses.items())[n][0])
-            returnValue = eval(list(error_links_responses.items())[n][1])
+            # print("Testing Link:", link, '\n')
+
+            with self.assertRaises(returnValue):
+                ytD.LinkValidation(link).partial_validation()
+            print("\nPartial Validation Link Test", n, "PASSED!")
+            n += 1
+
+        n = 0
+        # test full link validation
+        for link, value in error_full_validation_links.items():                   
+            # convert it to an actual error message
+            returnValue = eval(value)
 
             # print("Testing Link:", link, '\n')
 
             with self.assertRaises(returnValue):
-                ytD.link_validation(link)
-            print("\nInvalid Link Test", n, "PASSED!")
+                ytD.LinkValidation(link).full_link_validation()
+            print("\nFull Validation Link Test", n, "PASSED!")
+            n += 1
 
 
-        # test clip link
+
         # test standard YouTube video link 
         # test standard YouTube video link less channel
         # test short video link
         # test YT Shorts video link
 
         n = 0 
-        for n in range(len(validLinks_Results)):
-            link = (list(validLinks_Results.items())[n][0])
-            returnValue = eval(list(validLinks_Results.items())[n][1])
-
+        for link in validLinks:
             # print("Testing Link:", link, '\n')
-            self.assertEqual(ytD.link_validation(link), 
-                                returnValue
-                            )
+            # simply call the function, if any error occurs, we know it didn't work
+            ytD.LinkValidation(link).partial_validation()
+
             print("\nValid Link Test", n, "PASSED!")
+            n += 1
+
+        # test if clip link is recognized
+        self.assertEqual(ytD.LinkValidation(clip_link).is_clip, True)
+        print("\nClip Test PASSED!")
 
     
     def test_download_video(self):
-        # creates a space between the "." and the next line
-        print("\n")
-        name_mp4 = name + '.mp4'
-
-        # get just the list of valid links that DONT return True since those are clips and WONT be handled properly here
-        validLinks = list(dict(filter(filter_by_false, validLinks_Results.items())).keys())
-
-
-        n = 0
-        for link in validLinks:
+        for n, link in enumerate(validLinks):
             # print("Testing Link:", link, '\n')
-            
+
             # downloads the video
-            ytD.Functions(name).download_video(link)
+            ytD.VideoData(name_mp4).download_video('https://youtu.be/s7wLYzRJt3s')
 
             # checks if the file was generated
             self.assertTrue(os.path.isfile(name_mp4))
             print("Download Test", n, "PASSED!\n")
-            n += 1
+
+            if os.path.exists(name_mp4):
+                os.remove(name_mp4) 
 
     def test_convert_mp4(self):
         # creates a space between the "." and the next line
         print("\n")
         # since we need an MP4 we will move one from the testAssets folder
         move_file(name_mp4)
-        
+
         typesList = ['.mp3', '.wav']
         n = 0
         for type in typesList:
             # run as clip (means it needs to find 'name_trim.mp4')
-            ytD.Functions(name).convert_mp4(type, clip)
+            ytD.VideoData(name_mp4).convert_mp4(type, clip)
             
             # '_trim'
 
@@ -177,7 +192,7 @@ class Testyt_downloader(unittest.TestCase):
                 os.remove(file_name)
 
             # run as normal video; simply dont have to send in clip because default is False
-            ytD.Functions(name).convert_mp4(type)
+            ytD.VideoData(name_mp4).convert_mp4(type)
             
             # no suffix
             
@@ -192,7 +207,6 @@ class Testyt_downloader(unittest.TestCase):
             if os.path.exists(file_name):
                 os.remove(file_name)
 
-
     def test_cleanUp(self):
         n = 0
 
@@ -202,7 +216,7 @@ class Testyt_downloader(unittest.TestCase):
         move_file(name_trim_mp4)
 
         """NON CLIP VIDEO AND CONVERTING TO AUDIO"""
-        ytD.Functions(name).clean_up(False, True)
+        ytD.VideoData(name_mp4).clean_up(False, True)
 
         # ensure original MP4 was removed
         self.assertFalse(os.path.isfile(name_mp4))
@@ -218,7 +232,7 @@ class Testyt_downloader(unittest.TestCase):
         move_file(name_trim_mp4)
 
         """NON CLIP VIDEO AND NOT CONVERTING TO AUDIO"""
-        ytD.Functions(name).clean_up(False, False)
+        ytD.VideoData(name_mp4).clean_up(False, False)
 
         # ensure original MP4 is untouched
         self.assertTrue(os.path.isfile(name_mp4))
@@ -234,7 +248,7 @@ class Testyt_downloader(unittest.TestCase):
         move_file(name_trim_mp4)
 
         """CLIP VIDEO AND CONVERTING TO AUDIO"""
-        ytD.Functions(name).clean_up(True, True)
+        ytD.VideoData(name_mp4).clean_up(True, True)
         
         # ensure original MP4 was deleted
         self.assertFalse(os.path.isfile(name_mp4))
@@ -250,7 +264,7 @@ class Testyt_downloader(unittest.TestCase):
         move_file(name_trim_mp4)
 
         """CLIP VIDEO AND NOT CONVERTING TO AUDIO"""
-        ytD.Functions(name).clean_up(True, False)
+        ytD.VideoData(name_mp4).clean_up(True, False)
 
         # ensure original MP4 was deleted
         self.assertFalse(os.path.isfile(name_mp4))
@@ -263,18 +277,18 @@ class Testyt_downloader(unittest.TestCase):
     # need error handles for this???
     # maybe compare the sample to another video to check they are the same????
     def test_trim_content(self):
-        clip_instance = ytD.ClippedContent(test_clip)
-        link = clip_instance.original_video_link
+        video_data = ytD.VideoData(name_mp4)
+        url, start, end = video_data.original_video_info(test_clip)
 
-        self.assertEqual("https://youtu.be/NiXD4xVJM5Y", link)
+        self.assertEqual("https://youtu.be/NiXD4xVJM5Y", url)
 
         print("True Video Link Test PASSED!")
 
-        ytD.Functions(name).download_video(link)
+        video_data.download_video(url)
+
+        video_data.trim_content(start, end)
 
         self.assertTrue(os.path.isfile(name_mp4))
-
-        clip_instance.trim_content(name)
 
         self.assertTrue(os.path.isfile(name_trim_mp4))
 
