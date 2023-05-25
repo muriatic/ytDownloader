@@ -54,7 +54,7 @@ call VirtualytDownloader\Scripts\activate.bat
 
 pip install -r requirements.txt
 
-python -m eel yt_Downloader.py web -F --icon=icon.ico --noconsole
+python -m eel yt_downloader.py web -F --icon=icon.ico --noconsole
 
 call VirtualytDownloader\Scripts\deactivate.bat
 
