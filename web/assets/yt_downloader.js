@@ -235,6 +235,16 @@ async function partialValidation () {
 }
 
 async function formSubmission() {
+    // disable to prevent another call
+    $('#convert').addClass('disabled');
+    
+    // change the word to downloading
+    document.getElementById('convert').innerHTML = "Downloading"
+    
+    // change it to green button
+    $('#convert').removeClass('btn-primary');
+    $('#convert').addClass('btn-success');
+
     // hide submission-response
     changeResponseAppearance('submission-response')
 
@@ -272,6 +282,13 @@ async function formSubmission() {
             break;
         case 0:
             // this was a success so change accordingly
+
+            // change the word to downloaded
+            document.getElementById('convert').innerHTML = "Downloaded"
+
+            // change it to green button
+            $('#convert').addClass('btn-primary');
+            $('#convert').removeClass('btn-success');
             changeResponseAppearance('submission-response', `File: ${fileName} successfully downloaded!`, true)         
             break;
         case 1:
