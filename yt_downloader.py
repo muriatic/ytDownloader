@@ -125,11 +125,16 @@ class VideoData():
         self.original_file_path = original_file_path
 
 
-    def download_video(self, url: str) -> int:
+    def download_video(self, url: str, audio_only: bool, file_format: str) -> int:
         """Download the video"""
         youtube = YouTube(url)
-        video = youtube.streams.get_highest_resolution()
-        video.download(filename=self.name_mp4)
+        if audio_only:
+            video = youtube.streams.filter(only_audio=True).first()
+            video.download(filename=(self.name+file_format))
+        else:
+            video = youtube.streams.get_highest_resolution()
+            video.download(filename=self.name_mp4)
+            
         return 0
 
 
@@ -245,18 +250,15 @@ class MenuNav():
         video_data = VideoData(name_mp4)
 
         if None not in (start, end):
-            is_downloaded = video_data.download_video(url)
+            is_downloaded = video_data.download_video(url, audio_only, audio_type)
             video_data.trim_content(start, end)
             clip = True
         elif clip:
             url, start, end = video_data.original_video_info(url)
-            is_downloaded = video_data.download_video(url)
+            is_downloaded = video_data.download_video(url, audio_only, audio_type)
             video_data.trim_content(start, end)
         else:
-            is_downloaded = video_data.download_video(url)
-
-        if audio_only:
-            video_data.convert_mp4(audio_type, clip)
+            is_downloaded = video_data.download_video(url, audio_only, audio_type)
 
         video_data.clean_up(clip, audio_only)
 
