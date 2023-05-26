@@ -289,6 +289,7 @@ async function formSubmission() {
             // change it to green button
             $('#convert').addClass('btn-primary');
             $('#convert').removeClass('btn-success');
+            $('#convert').removeClass('disabled');
             changeResponseAppearance('submission-response', `File: ${fileName} successfully downloaded!`, true)         
             break;
         case 1:
