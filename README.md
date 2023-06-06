@@ -7,12 +7,13 @@ YouTube Downloader and MP4 to Audio Converter
 - [ ] Save at different speeds
 - [ ] Custom Push/Commit Commands
 <Lines of Code>
+
 ## Code Stats:
-- Python: 705
+- Python: 706
 - HTML: 234
 - CSS: 60
 - JavaScript: 380
-- Total Lines of Code: 1379
+- Total Lines of Code: 1380
 <Lines of Code/>
 
 ## SHA-256 Checksum:
