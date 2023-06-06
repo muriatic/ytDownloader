@@ -62,6 +62,7 @@ def show_exception_and_exit(exc_type, exc_value, tb_object):
 
 sys.excepthook = show_exception_and_exit
 
+
 class UrlValidation():
     """Class for UrlValidation, returns clip value, status codes, and correct paths"""
     def __init__(self, url):
