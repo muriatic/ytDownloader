@@ -78,7 +78,6 @@ class UrlValidation():
         netloc = self.parsed_url.netloc
         path = self.parsed_url.path
         scheme = self.parsed_url.scheme
-
         check_field1 = netloc
         check_field2 = path
 
