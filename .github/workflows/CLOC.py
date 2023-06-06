@@ -60,16 +60,3 @@ with open('README.md', 'r') as readme:
 with open('README.md', 'w') as readme:
     for line in new_contents:
         readme.write(line)
-
-
-
-    
-
-# with open('README.md', 'w') as readme:
-#     readme.write("# Code Stats:\n")
-#     for (a, b) in zip(languages, LOC_by_language):
-#         a = (a.split('.')[1]).upper()
-#         readme.write(f'- {a}: {b}\n')
-#         ttl_loc += b
-
-#     readme.write(f'- Total Lines of Code: {ttl_loc}')
