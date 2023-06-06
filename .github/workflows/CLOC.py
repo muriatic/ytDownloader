@@ -57,7 +57,7 @@ with open('README.md', 'r') as readme:
 
     new_contents = content_before_LOC + lines_of_code + content_after_LOC
 
-with open('readme.md', 'w') as readme:
+with open('README.md', 'w') as readme:
     for line in new_contents:
         readme.write(line)
 
