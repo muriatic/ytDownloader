@@ -6,7 +6,8 @@ YouTube Downloader and MP4 to Audio Converter
 - [ ] Load the YouTube/MP4 video into the UI to allow for a more interactive clipping experience
 - [ ] Save at different speeds
 - [ ] Custom Push/Commit Commands
-<Lines of Code>\
+<Lines of Code>
+
 ## Code Stats:
 - Python: 706
 - HTML: 234
