@@ -6,5 +6,8 @@ YouTube Downloader and MP4 to Audio Converter
 - [ ] Load the YouTube/MP4 video into the UI to allow for a more interactive clipping experience
 - [ ] Save at different speeds
 - [ ] Custom Push/Commit Commands
+<Lines of Code>
+
+<Lines of Code/>
 ## SHA-256 Checksum:
 16B6986B994675A5263EFB764B9B43BC297413336E536F0DC229C8E65EAB0D20
