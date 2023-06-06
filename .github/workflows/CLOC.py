@@ -43,7 +43,8 @@ new_contents = []
 with open('README.md', 'r') as readme:
     contents = readme.readlines()
 
-    content_before_LOC = contents[ :contents.index('<Lines of Code>\n')+1] + '\n'
+    content_before_LOC = contents[ :contents.index('<Lines of Code>\n')+1]
+    content_before_LOC.append('\n')
     content_after_LOC = contents[contents.index('<Lines of Code/>\n'): ]
 
     lines_of_code = []
