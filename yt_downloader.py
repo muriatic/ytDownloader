@@ -50,8 +50,10 @@ class NoMP4FilesToConvertException(Exception):
 class EndBeforeStartException(Exception):
     """Raised when the end time is before the start time"""
 
+
 class NonVideoUrlException(Exception):
     """Raised when a non-video youtube url is entered"""
+
 
 # error handling
 def show_exception_and_exit(exc_type, exc_value, tb_object):
