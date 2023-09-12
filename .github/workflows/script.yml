@@ -11,7 +11,8 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
-
+        
         steps:
+            - uses: actions/checkout@v3
             - name: Unittesting
               run: python ../.tools/test_yt_downloader.py
