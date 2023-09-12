@@ -10,10 +10,12 @@ on:
 
 jobs:
     build:
-        runs-on: ubuntu-latest
+        runs-on: windows-latest
         
         steps:
             - uses: actions/checkout@v3
+
+
 
             - name: unittesting
               run: python .tools/test_yt_downloader.py
