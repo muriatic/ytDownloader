@@ -14,4 +14,4 @@ jobs:
 
         steps:
             - name: Unittesting
-              run: python test_yt_downloader.py
+              run: python ../.tools/test_yt_downloader.py
