@@ -15,7 +15,11 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
+            - name: Create Requirements.txt 
+              run: python .github/workflows/installRequirements.py
 
+            - name: Install Dependencies
+              run: python -m pip install -r .github/workflows/requirements.txt
 
-            - name: unittesting
+            - name: Unittesting
               run: python .tools/test_yt_downloader.py
