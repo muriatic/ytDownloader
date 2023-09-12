@@ -1,0 +1,17 @@
+name: Unittesting
+
+on:
+    push:
+        paths:
+            - '**.py'
+        branches: ["main"]
+    
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Unittesting
+              run: python .tools/test_yt_downloader.py
