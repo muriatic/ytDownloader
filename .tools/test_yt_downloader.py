@@ -69,7 +69,7 @@ def move_file(file_name):
         # if the file is not found in the testAssets folder, attempt to download it,
         # and place it in the testAssets folder
         print(file_name, "not found in /testAssets. Attempting to download the video")
-        ytD.VideoData(file_name).download_video(test_video)
+        ytD.VideoData(file_name).download_video(test_video, False, '.mp4')
         shutil.copy(os.path.join(cwd, file_name), file_name_path)
 
 
@@ -155,7 +155,7 @@ class Testyt_downloader(unittest.TestCase):
             # print("Testing Url:", url, '\n')
 
             # downloads the video
-            ytD.VideoData(name_mp4).download_video(url)
+            ytD.VideoData(name_mp4).download_video(url, False, '.mp4')
 
             # checks if the file was generated
             self.assertTrue(os.path.isfile(name_mp4))
@@ -281,7 +281,7 @@ class Testyt_downloader(unittest.TestCase):
 
         print("True Video Url Test PASSED!")
 
-        video_data.download_video(url)
+        video_data.download_video(url, False, '.mp4')
 
         video_data.trim_content(start, end)
 
